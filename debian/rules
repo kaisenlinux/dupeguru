@@ -1,0 +1,9 @@
+#!/usr/bin/make -f
+
+%:
+	dh $@ --with=python3
+
+override_dh_auto_install:
+	chmod +x run.py
+	dh_auto_install
+	rm -r debian/dupeguru/usr/share/applications

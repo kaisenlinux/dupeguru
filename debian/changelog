@@ -1,0 +1,5 @@
+dupeguru (4.1.1-1kaisen) kaisen-packages; urgency=medium
+
+  * First packaging for Kaisen Linux
+
+ -- Kevin Chevreuil - Kaisen <kaisen@kaisenlinux.org>  Sat, 25 Dec 2021 22:41:45 +0100

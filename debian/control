@@ -1,0 +1,33 @@
+Source: dupeguru
+Section: utils
+Priority: optional
+Maintainer: Kevin Chevreuil - Kaisen <kaisen@kaisenlinux.org>
+Build-Depends: debhelper-compat (= 13),
+	       python3 (>= 3.6),
+	       python3-pyqt5,
+	       pyqt5-dev-tools,
+	       python3-setuptools,
+	       python3-wheel,
+	       python3-venv,
+	       python3-dev,
+	       build-essential,
+Standards-Version: 4.6.0
+Homepage: https://dupeguru.voltaicideas.net/
+Vcs-Browser: https://gitlab.com/kaisenlinux/packages/dupeguru
+Vcs-Git: https://gitlab.com/kaisenlinux/packages/dupeguru.git
+Rules-Requires-Root: no
+
+Package: dupeguru
+Architecture: any
+Depends: ${shlibs:Depends},
+	 ${misc:Depends},
+	 ${python3:Depends},
+	 python3-send2trash,
+	 python3-sphinx,
+	 python3-polib,
+	 python3-hsaudiotag,
+	 python3-distro,
+	 python3-pyqt5,
+	 python3-pytest,
+	 python3-flake8,
+Description: Find duplicate files

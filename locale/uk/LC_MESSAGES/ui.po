@@ -1,0 +1,945 @@
+# Translators:
+# Andrew Senetar <arsenetar@gmail.com>, 2021
+# Fuan <jcfrt@posteo.net>, 2021
+#
+msgid ""
+msgstr ""
+"Last-Translator: Fuan <jcfrt@posteo.net>, 2021\n"
+"Language-Team: Ukrainian (https://www.transifex.com/voltaicideas/teams/116153/uk/)\n"
+"Language: uk\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: utf-8\n"
+"Plural-Forms: nplurals=4; plural=(n % 1 == 0 && n % 10 == 1 && n % 100 != 11 ? 0 : n % 1 == 0 && n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14) ? 1 : n % 1 == 0 && (n % 10 ==0 || (n % 10 >=5 && n % 10 <=9) || (n % 100 >=11 && n % 100 <=14 )) ? 2: 3);\n"
+
+#: qt/app.py:81
+msgid "Quit"
+msgstr "Вихід"
+
+#: qt/app.py:82 qt/preferences_dialog.py:116
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Options"
+msgstr "Опції"
+
+#: qt/app.py:83 qt/ignore_list_dialog.py:32
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Ignore List"
+msgstr "Чорний список"
+
+#: qt/app.py:84 qt/app.py:179 cocoa/en.lproj/Localizable.strings:0
+msgid "Clear Picture Cache"
+msgstr "Очистити кеш зображень"
+
+#: qt/app.py:85 cocoa/en.lproj/Localizable.strings:0
+msgid "dupeGuru Help"
+msgstr "Довідка dupeGuru"
+
+#: qt/app.py:86 cocoa/en.lproj/Localizable.strings:0
+msgid "About dupeGuru"
+msgstr "Про dupeGuru"
+
+#: qt/app.py:87
+msgid "Open Debug Log"
+msgstr "Відкрити журнал налагодження"
+
+#: qt/app.py:180 cocoa/en.lproj/Localizable.strings:0
+msgid "Do you really want to remove all your cached picture analysis?"
+msgstr "Ви дійсно хочете видалити всі кешовані результати аналізу зображень?"
+
+#: qt/app.py:184
+msgid "Picture cache cleared."
+msgstr "Кеш зображень очищено."
+
+#: qt/app.py:251
+msgid "{} file (*.{})"
+msgstr "{} файл (*. {})"
+
+#: qt/deletion_options.py:30 cocoa/en.lproj/Localizable.strings:0
+msgid "Deletion Options"
+msgstr "варіанти делеций"
+
+#: qt/deletion_options.py:35 cocoa/en.lproj/Localizable.strings:0
+msgid "Link deleted files"
+msgstr "Посилання на видалені файли"
+
+#: qt/deletion_options.py:37 cocoa/en.lproj/Localizable.strings:0
+msgid ""
+"After having deleted a duplicate, place a link targeting the reference file "
+"to replace the deleted file."
+msgstr ""
+"Після того, як віддаляється дублікат, розмістити посилання таргетування "
+"посилального файлу, щоб замінити віддалений файл."
+
+#: qt/deletion_options.py:44
+msgid "Hardlink"
+msgstr "Hardlink"
+
+#: qt/deletion_options.py:44
+msgid "Symlink"
+msgstr "Симлінк"
+
+#: qt/deletion_options.py:48
+msgid " (unsupported)"
+msgstr "(не підтримується)"
+
+#: qt/deletion_options.py:49 cocoa/en.lproj/Localizable.strings:0
+msgid "Directly delete files"
+msgstr "Безпосередньо видаляйте файли"
+
+#: qt/deletion_options.py:51 cocoa/en.lproj/Localizable.strings:0
+msgid ""
+"Instead of sending files to trash, delete them directly. This option is "
+"usually used as a workaround when the normal deletion method doesn't work."
+msgstr ""
+"Замість надсилання файлів у кошик, видаліть їх безпосередньо. Цей варіант "
+"зазвичай використовується як обхідний спосіб, коли звичайний метод видалення"
+" не працює."
+
+#: qt/deletion_options.py:59 cocoa/en.lproj/Localizable.strings:0
+msgid "Proceed"
+msgstr "Продовжуйте"
+
+#: qt/deletion_options.py:60 cocoa/en.lproj/Localizable.strings:0
+msgid "Cancel"
+msgstr "Скасувати"
+
+#: qt/details_table.py:16 cocoa/en.lproj/Localizable.strings:0
+msgid "Attribute"
+msgstr "Атрибут"
+
+#: qt/details_table.py:16 cocoa/en.lproj/Localizable.strings:0
+msgid "Selected"
+msgstr "Обраний"
+
+#: qt/details_table.py:16 qt/directories_model.py:24
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Reference"
+msgstr "Посилання"
+
+#: qt/directories_dialog.py:64 cocoa/en.lproj/Localizable.strings:0
+msgid "Load Results..."
+msgstr "Завантажити результати ..."
+
+#: qt/directories_dialog.py:65 cocoa/en.lproj/Localizable.strings:0
+msgid "Results Window"
+msgstr "Вікно результатів"
+
+#: qt/directories_dialog.py:66
+msgid "Add Folder..."
+msgstr "Додати папку ..."
+
+#: qt/directories_dialog.py:74 qt/result_window.py:100
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "File"
+msgstr "Файл"
+
+#: qt/directories_dialog.py:76 qt/result_window.py:108
+msgid "View"
+msgstr "Вид"
+
+#: qt/directories_dialog.py:78 qt/result_window.py:110
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Help"
+msgstr "Допомога"
+
+#: qt/directories_dialog.py:80 cocoa/en.lproj/Localizable.strings:0
+msgid "Load Recent Results"
+msgstr "Завантажити нещодавні результати"
+
+#: qt/directories_dialog.py:116 cocoa/en.lproj/Localizable.strings:0
+msgid "Application Mode:"
+msgstr "Режим застосування:"
+
+#: qt/directories_dialog.py:121 cocoa/en.lproj/Localizable.strings:0
+msgid "Music"
+msgstr "Музика"
+
+#: qt/directories_dialog.py:121 cocoa/en.lproj/Localizable.strings:0
+msgid "Picture"
+msgstr "зображення"
+
+#: qt/directories_dialog.py:121 cocoa/en.lproj/Localizable.strings:0
+msgid "Standard"
+msgstr "Стандартний"
+
+#: qt/directories_dialog.py:128 cocoa/en.lproj/Localizable.strings:0
+msgid "Scan Type:"
+msgstr "Тип пошуку:"
+
+#: qt/directories_dialog.py:135
+msgid "More Options"
+msgstr "Більше варіантів"
+
+#: qt/directories_dialog.py:139 cocoa/en.lproj/Localizable.strings:0
+msgid "Select folders to scan and press \"Scan\"."
+msgstr "Оберіть папки для пошуку і натисніть \"Шукати\"."
+
+#: qt/directories_dialog.py:163 cocoa/en.lproj/Localizable.strings:0
+msgid "Load Results"
+msgstr "Завантажити результати"
+
+#: qt/directories_dialog.py:166 cocoa/en.lproj/Localizable.strings:0
+msgid "Scan"
+msgstr "Шукати"
+
+#: qt/directories_dialog.py:230
+msgid "Unsaved results"
+msgstr "Незбережені результати"
+
+#: qt/directories_dialog.py:231 cocoa/en.lproj/Localizable.strings:0
+msgid "You have unsaved results, do you really want to quit?"
+msgstr "Ви маєте незбережені результати, ви дійсно хочете вийти?"
+
+#: qt/directories_dialog.py:239 cocoa/en.lproj/Localizable.strings:0
+msgid "Select a folder to add to the scanning list"
+msgstr "Оберіть папку для додання в список пошуку"
+
+#: qt/directories_dialog.py:266 cocoa/en.lproj/Localizable.strings:0
+msgid "Select a results file to load"
+msgstr "Виберіть файл результатів для завантаження"
+
+#: qt/directories_dialog.py:267
+msgid "All Files (*.*)"
+msgstr "Всі файли (*.*)"
+
+#: qt/directories_dialog.py:267 qt/result_window.py:311
+msgid "dupeGuru Results (*.dupeguru)"
+msgstr "Результати dupeGuru (*.dupeguru) "
+
+#: qt/directories_dialog.py:278
+msgid "Start a new scan"
+msgstr "Почати новий пошук"
+
+#: qt/directories_dialog.py:279 cocoa/en.lproj/Localizable.strings:0
+msgid "You have unsaved results, do you really want to continue?"
+msgstr "Ви маєте незбережені результати, ви дійсно хочете продовжити?"
+
+#: qt/directories_model.py:23 cocoa/en.lproj/Localizable.strings:0
+msgid "Name"
+msgstr "Ім'я"
+
+#: qt/directories_model.py:23 cocoa/en.lproj/Localizable.strings:0
+msgid "State"
+msgstr "Стан"
+
+#: qt/directories_model.py:24 cocoa/en.lproj/Localizable.strings:0
+msgid "Excluded"
+msgstr "Виключений"
+
+#: qt/directories_model.py:24 cocoa/en.lproj/Localizable.strings:0
+msgid "Normal"
+msgstr "Нормальний"
+
+#: qt/ignore_list_dialog.py:45 cocoa/en.lproj/Localizable.strings:0
+msgid "Remove Selected"
+msgstr "Видалити обрані"
+
+#: qt/ignore_list_dialog.py:46 cocoa/en.lproj/Localizable.strings:0
+msgid "Clear"
+msgstr "Очистити"
+
+#: qt/ignore_list_dialog.py:47 qt/problem_dialog.py:61
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Close"
+msgstr "Закрити"
+
+#: qt/me/details_dialog.py:18 qt/pe/details_dialog.py:24
+#: qt/result_window.py:56 qt/result_window.py:192 qt/se/details_dialog.py:18
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Details"
+msgstr "Деталі"
+
+#: qt/me/preferences_dialog.py:30 cocoa/en.lproj/Localizable.strings:0
+msgid "Tags to scan:"
+msgstr "Теги для пошуку:"
+
+#: qt/me/preferences_dialog.py:36 cocoa/en.lproj/Localizable.strings:0
+msgid "Track"
+msgstr "Трек"
+
+#: qt/me/preferences_dialog.py:38 cocoa/en.lproj/Localizable.strings:0
+msgid "Artist"
+msgstr "Артист"
+
+#: qt/me/preferences_dialog.py:40 cocoa/en.lproj/Localizable.strings:0
+msgid "Album"
+msgstr "Альбом"
+
+#: qt/me/preferences_dialog.py:42 cocoa/en.lproj/Localizable.strings:0
+msgid "Title"
+msgstr "Назва"
+
+#: qt/me/preferences_dialog.py:44 cocoa/en.lproj/Localizable.strings:0
+msgid "Genre"
+msgstr "Жанр"
+
+#: qt/me/preferences_dialog.py:46 cocoa/en.lproj/Localizable.strings:0
+msgid "Year"
+msgstr "Рік"
+
+#: qt/me/preferences_dialog.py:50 qt/se/preferences_dialog.py:30
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Word weighting"
+msgstr "Порівнювати за словами"
+
+#: qt/me/preferences_dialog.py:52 qt/se/preferences_dialog.py:32
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Match similar words"
+msgstr "Вважати схожі слова однаковими"
+
+#: qt/me/preferences_dialog.py:54 qt/pe/preferences_dialog.py:21
+#: qt/se/preferences_dialog.py:34 cocoa/en.lproj/Localizable.strings:0
+msgid "Can mix file kind"
+msgstr "Можна змішувати типи файлів"
+
+#: qt/me/preferences_dialog.py:56 qt/pe/preferences_dialog.py:23
+#: qt/se/preferences_dialog.py:36 cocoa/en.lproj/Localizable.strings:0
+msgid "Use regular expressions when filtering"
+msgstr "Використовувати регулярних виразів при фільтрації"
+
+#: qt/me/preferences_dialog.py:58 qt/pe/preferences_dialog.py:25
+#: qt/se/preferences_dialog.py:38 cocoa/en.lproj/Localizable.strings:0
+msgid "Remove empty folders on delete or move"
+msgstr "Видалити порожні папки під час видалення чи переміщення"
+
+#: qt/me/preferences_dialog.py:60 qt/pe/preferences_dialog.py:27
+#: qt/se/preferences_dialog.py:59 cocoa/en.lproj/Localizable.strings:0
+msgid "Ignore duplicates hardlinking to the same file"
+msgstr "Ігнорувати дублікати, що є жорсткими посиланнями на той самий файл"
+
+#: qt/me/preferences_dialog.py:62 qt/pe/preferences_dialog.py:29
+#: qt/se/preferences_dialog.py:62 cocoa/en.lproj/Localizable.strings:0
+msgid "Debug mode (restart required)"
+msgstr "Режим налагодження (потрібен перезапуск)"
+
+#: qt/pe/preferences_dialog.py:19 cocoa/en.lproj/Localizable.strings:0
+msgid "Match pictures of different dimensions"
+msgstr "Порівнювати малюнки різних розмірів"
+
+#: qt/preferences_dialog.py:43
+msgid "Filter Hardness:"
+msgstr "Жорсткість фільтру:"
+
+#: qt/preferences_dialog.py:69
+msgid "More Results"
+msgstr "Більше результатів"
+
+#: qt/preferences_dialog.py:74
+msgid "Fewer Results"
+msgstr "Менше результатів"
+
+#: qt/preferences_dialog.py:81
+msgid "Font size:"
+msgstr "Розмір шрифта:"
+
+#: qt/preferences_dialog.py:85
+msgid "Language:"
+msgstr "Мова:"
+
+#: qt/preferences_dialog.py:91 cocoa/en.lproj/Localizable.strings:0
+msgid "Copy and Move:"
+msgstr "Копіювання і переміщення:"
+
+#: qt/preferences_dialog.py:94 cocoa/en.lproj/Localizable.strings:0
+msgid "Right in destination"
+msgstr "Прямо у цільову папку"
+
+#: qt/preferences_dialog.py:95 cocoa/en.lproj/Localizable.strings:0
+msgid "Recreate relative path"
+msgstr "Відтворити відносний шлях"
+
+#: qt/preferences_dialog.py:96 cocoa/en.lproj/Localizable.strings:0
+msgid "Recreate absolute path"
+msgstr "Відтворити абсолютний шлях"
+
+#: qt/preferences_dialog.py:99
+msgid "Custom Command (arguments: %d for dupe, %r for ref):"
+msgstr "Власна команда (аргументи: %d для дублікату, %r для посиланя):"
+
+#: qt/preferences_dialog.py:174
+msgid "dupeGuru has to restart for language changes to take effect."
+msgstr "dupeGuru необхідно перезапустити для застосування зміни мови."
+
+#: qt/prioritize_dialog.py:75 cocoa/en.lproj/Localizable.strings:0
+msgid "Re-Prioritize duplicates"
+msgstr "Змінити пріоритети дублікатів"
+
+#: qt/prioritize_dialog.py:79 cocoa/en.lproj/Localizable.strings:0
+msgid ""
+"Add criteria to the right box and click OK to send the dupes that correspond"
+" the best to these criteria to their respective group's reference position. "
+"Read the help file for more information."
+msgstr ""
+"Додайте критерії в праве поле і натисніть кнопку ОК, щоб відправити "
+"дублікати, які найкраще відповідають цим критеріям, до вихідної позиції "
+"відповідних груп. Прочитайте файл довідки для отримання додаткової "
+"інформації."
+
+#: qt/problem_dialog.py:33 cocoa/en.lproj/Localizable.strings:0
+msgid "Problems!"
+msgstr "Проблеми!"
+
+#: qt/problem_dialog.py:37 cocoa/en.lproj/Localizable.strings:0
+msgid ""
+"There were problems processing some (or all) of the files. The cause of "
+"these problems are described in the table below. Those files were not "
+"removed from your results."
+msgstr ""
+"Виникли проблеми під час обробки деяких (або всіх) файлів. Причини цих "
+"проблем описані в таблиці нижче. Ці файли не були видалені з результатів "
+"пошуку."
+
+#: qt/problem_dialog.py:56
+msgid "Reveal Selected"
+msgstr "Показати вибрані"
+
+#: qt/result_window.py:57 qt/result_window.py:104 qt/result_window.py:167
+#: qt/result_window.py:191 cocoa/en.lproj/Localizable.strings:0
+msgid "Actions"
+msgstr "Дії"
+
+#: qt/result_window.py:58 cocoa/en.lproj/Localizable.strings:0
+msgid "Show Dupes Only"
+msgstr "Показати тільки дуплікати"
+
+#: qt/result_window.py:59 cocoa/en.lproj/Localizable.strings:0
+msgid "Show Delta Values"
+msgstr "Показати різницю"
+
+#: qt/result_window.py:60
+msgid "Send Marked to Recycle Bin..."
+msgstr "Надіслати позначене до кошику..."
+
+#: qt/result_window.py:61 cocoa/en.lproj/Localizable.strings:0
+msgid "Move Marked to..."
+msgstr "Перемістити позначене до ..."
+
+#: qt/result_window.py:62 cocoa/en.lproj/Localizable.strings:0
+msgid "Copy Marked to..."
+msgstr "Скопіювати позначене до ..."
+
+#: qt/result_window.py:63 cocoa/en.lproj/Localizable.strings:0
+msgid "Remove Marked from Results"
+msgstr "Видалити позначене з результатів"
+
+#: qt/result_window.py:64 cocoa/en.lproj/Localizable.strings:0
+msgid "Re-Prioritize Results..."
+msgstr "Змінити пріоритети результатів ..."
+
+#: qt/result_window.py:67 cocoa/en.lproj/Localizable.strings:0
+msgid "Remove Selected from Results"
+msgstr "Видалити обране з результатів"
+
+#: qt/result_window.py:71 cocoa/en.lproj/Localizable.strings:0
+msgid "Add Selected to Ignore List"
+msgstr "Додати обране в чорний список"
+
+#: qt/result_window.py:75 cocoa/en.lproj/Localizable.strings:0
+msgid "Make Selected into Reference"
+msgstr "Зробити обраний елемент в довідковий пункт."
+
+#: qt/result_window.py:77 cocoa/en.lproj/Localizable.strings:0
+msgid "Open Selected with Default Application"
+msgstr "Відкрити обране програмою за умовчанням"
+
+#: qt/result_window.py:80
+msgid "Open Containing Folder of Selected"
+msgstr "Відкрити папку, що містить обране"
+
+#: qt/result_window.py:82 cocoa/en.lproj/Localizable.strings:0
+msgid "Rename Selected"
+msgstr "Перейменувати обране"
+
+#: qt/result_window.py:83 cocoa/en.lproj/Localizable.strings:0
+msgid "Mark All"
+msgstr "Позначити всі"
+
+#: qt/result_window.py:84 cocoa/en.lproj/Localizable.strings:0
+msgid "Mark None"
+msgstr "Скинути позначення"
+
+#: qt/result_window.py:85 cocoa/en.lproj/Localizable.strings:0
+msgid "Invert Marking"
+msgstr "Інвертувати позначення"
+
+#: qt/result_window.py:86 cocoa/en.lproj/Localizable.strings:0
+msgid "Mark Selected"
+msgstr "Позначити обране"
+
+#: qt/result_window.py:87
+msgid "Export To HTML"
+msgstr "Експорт в HTML"
+
+#: qt/result_window.py:88
+msgid "Export To CSV"
+msgstr "Експорт у CSV"
+
+#: qt/result_window.py:89 cocoa/en.lproj/Localizable.strings:0
+msgid "Save Results..."
+msgstr "Зберегти результати ..."
+
+#: qt/result_window.py:90 cocoa/en.lproj/Localizable.strings:0
+msgid "Invoke Custom Command"
+msgstr "Викликати власну команду"
+
+#: qt/result_window.py:102
+msgid "Mark"
+msgstr "Позначити"
+
+#: qt/result_window.py:106 cocoa/en.lproj/Localizable.strings:0
+msgid "Columns"
+msgstr "Колонки"
+
+#: qt/result_window.py:163
+msgid "Reset to Defaults"
+msgstr "Відновити налаштування за замовчуванням"
+
+#: qt/result_window.py:185
+msgid "{} Results"
+msgstr "{} Результати"
+
+#: qt/result_window.py:193 cocoa/en.lproj/Localizable.strings:0
+msgid "Dupes Only"
+msgstr "Тільки дублікати"
+
+#: qt/result_window.py:194
+msgid "Delta Values"
+msgstr "Різниця"
+
+#: qt/result_window.py:310 cocoa/en.lproj/Localizable.strings:0
+msgid "Select a file to save your results to"
+msgstr "Оберіть файл у який слід зберегти ваші результати"
+
+#: qt/se/preferences_dialog.py:41
+msgid "Ignore files smaller than"
+msgstr "Ігнорувати файли менші ніж"
+
+#: qt/se/preferences_dialog.py:52 cocoa/en.lproj/Localizable.strings:0
+msgid "KB"
+msgstr "КБ"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "%@ Results"
+msgstr "%@ Результати"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Action"
+msgstr "Дія"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Add New Folder..."
+msgstr "Додати нову папку ..."
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Advanced"
+msgstr "Розширені"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Automatically check for updates"
+msgstr "Автоматично перевіряти наявність оновлень"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Basic"
+msgstr "Основні"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Bring All to Front"
+msgstr "Всі на передній план"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Check for update..."
+msgstr "Перевірити оновлення ..."
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Close Window"
+msgstr "Закрити вікно"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Copy"
+msgstr "Копіювати"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Custom command (arguments: %d for dupe, %r for ref):"
+msgstr "Власна комада (аргументи: %d для дублікату, %r для посилання):"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Cut"
+msgstr "Вирізати"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Delta"
+msgstr "Різниця"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Details of Selected File"
+msgstr "Інформація про обраний файл"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Details Panel"
+msgstr "Панель інформації"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Directories"
+msgstr "Папки"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "dupeGuru"
+msgstr "dupeGuru"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "dupeGuru Preferences"
+msgstr "Налаштування dupeGuru"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "dupeGuru Results"
+msgstr "Результати dupeGuru"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "dupeGuru Website"
+msgstr "Веб-сайт dupeGuru"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Edit"
+msgstr "Редагувати"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Export Results to CSV"
+msgstr "Експортувати результати до CSV"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Export Results to XHTML"
+msgstr "Експорт результатів в XHTML"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Fewer results"
+msgstr "Менше результатів"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Filter"
+msgstr "Фільтр"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Filter hardness:"
+msgstr "Жорсткість фільтру:"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Filter Results..."
+msgstr "Фільтрувати результати ..."
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Folder Selection Window"
+msgstr "Вікно вибору папок"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Font Size:"
+msgstr "Розмір шрифту:"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Hide dupeGuru"
+msgstr "Приховати dupeGuru"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Hide Others"
+msgstr "Сховати інші"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Ignore files smaller than:"
+msgstr "Ігнорувати файли менші ніж:"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Load from file..."
+msgstr "Завантажити з файлу ..."
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Minimize"
+msgstr "Мінімізувати"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Mode"
+msgstr "Режим"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "More results"
+msgstr "Більше результатів"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Ok"
+msgstr "Ok"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Paste"
+msgstr "Вставити"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Preferences..."
+msgstr "Налаштування ..."
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Quick Look"
+msgstr "Швидкий перегляд"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Quit dupeGuru"
+msgstr "Вийти з dupeGuru"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Reset to Default"
+msgstr "Відновити налаштування за замовчуванням"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Reset To Defaults"
+msgstr "Скинути до значень за замовчуванням"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Reveal"
+msgstr "показувати"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Reveal Selected in Finder"
+msgstr "Показати вибране у Finder"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Select All"
+msgstr "Виберіть Усі"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Send Marked to Trash..."
+msgstr "Надіслати позначене до кошику..."
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Services"
+msgstr "Послуги"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Show All"
+msgstr "Показати всі"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Start Duplicate Scan"
+msgstr "Почати пошук дублікатів"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "The name '%@' already exists."
+msgstr "Ім’я '%@' вже існує."
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Window"
+msgstr "Вікно"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Zoom"
+msgstr "Збільшити"
+
+#: qt\app.py:158
+msgid "Exclusion Filters"
+msgstr "Фільтри виключення"
+
+#: qt\directories_dialog.py:91
+msgid "Scan Results"
+msgstr "Результати сканування"
+
+#: qt\directories_dialog.py:95
+msgid "Load Directories..."
+msgstr "Завантажити каталоги..."
+
+#: qt\directories_dialog.py:96
+msgid "Save Directories..."
+msgstr "Зберегти каталоги..."
+
+#: qt\directories_dialog.py:337
+msgid "Select a directories file to load"
+msgstr "Виберіть файл каталогів для завантаження."
+
+#: qt\directories_dialog.py:338
+msgid "dupeGuru Results (*.dupegurudirs)"
+msgstr "dupeGuru довідники (*.dupegurudirs)"
+
+#: qt\directories_dialog.py:347
+msgid "Select a file to save your directories to"
+msgstr "Виберіть файл, до якого зберігатимуться ваші каталоги"
+
+#: qt\directories_dialog.py:348
+msgid "dupeGuru Directories (*.dupegurudirs)"
+msgstr "dupeGuru довідники (*.dupegurudirs)"
+
+#: qt\exclude_list_dialog.py:44
+msgid "Add"
+msgstr "Додати"
+
+#: qt\exclude_list_dialog.py:46
+msgid "Restore defaults"
+msgstr "Відновити значення за замовчуванням"
+
+#: qt\exclude_list_dialog.py:47
+msgid "Test string"
+msgstr "Тестовий рядок"
+
+#: qt\exclude_list_dialog.py:83
+msgid "Type a python regular expression here..."
+msgstr "Введіть сюди регулярний вираз python..."
+
+#: qt\exclude_list_dialog.py:85
+msgid "Type a file system path or filename here..."
+msgstr "Введіть тут шлях до файлової системи або ім’я файлу..."
+
+#: qt\exclude_list_dialog.py:152
+msgid ""
+"These (case sensitive) python regular expressions will filter out files during scans.<br>Directores will also have their <strong>default state</strong> set to Excluded in the Directories tab if their name happen to match one of the regular expressions.<br>For each file collected two tests are perfomed on each of them to determine whether or not to filter them out:<br><li>1. Regular expressions with no path separator in them will be compared to the file name only.</li>\n"
+"<li>2. Regular expressions with no path separator in them will be compared to the full path to the file.</li><br>\n"
+"Example: if you want to filter out .PNG files from the \"My Pictures\" directory only:<br><code>.*My\\sPictures\\\\.*\\.png</code><br><br>You can test the regular expression with the test string feature by pasting a fake path in it:<br><code>C:\\\\User\\My Pictures\\test.png</code><br><br>\n"
+"Matching regular expressions will be highlighted.<br>If there is at least one highlight, the path tested will be ignored during scans.<br><br>Directories and files starting with a period '.' are filtered out by default.<br><br>"
+msgstr ""
+"Ці регулярні вирази python (чутливі до регістру) фільтруватимуть файли під час сканування.<br>Також для каталогів буде встановлено <strong>статус за замовчуванням</strong> \"Виключено\" на вкладці \"Каталоги\", якщо їх ім'я збігається з одним із вибраних регулярних виразів.<br>Для кожного зібраного файлу проводяться два тести, щоб визначити, чи повністю його ігнорувати:<br><li>1. Регулярні вирази, у яких немає роздільника шляху, будуть порівнюватися лише з назвою файлу.</li>\n"
+"<li>2. Регулярні вирази, що містять принаймні один роздільник шляхів, будуть порівняні з повним шляхом до файлу.</li><br>\n"
+"Приклад: якщо ви хочете відфільтрувати файли PNG лише з каталогу \"Мої фотографії\":<br><code>.*My\\sPictures\\\\.*\\.png</code><br><br>Ви можете перевірити регулярний вираз за допомогою кнопки \"тестовий рядок\" після вставки підробленого шляху в тестове поле:<br><code>C:\\\\User\\My Pictures\\test.png</code><br><br>\n"
+"Відповідні регулярні вирази будуть виділені. <br>Якщо є хоча б одне виділення, тестований шлях або ім’я файлу буде проігноровано під час сканування.<br><br>Каталоги та файли, що починаються з крапки '.' за замовчуванням відфільтровуються.<br><br>"
+
+#: qt\exclude_list_table.py:36
+msgid "Compilation error: "
+msgstr "Помилка компіляції:"
+
+#: qt\pe\image_viewer.py:56
+msgid "Increase zoom"
+msgstr "Збільште масштабування"
+
+#: qt\pe\image_viewer.py:66
+msgid "Decrease zoom"
+msgstr "Зменште масштабування"
+
+#: qt\pe\image_viewer.py:71
+msgid "Ctrl+/"
+msgstr "Ctrl+/"
+
+#: qt\pe\image_viewer.py:76
+msgid "Normal size"
+msgstr "Звичайний розмір"
+
+#: qt\pe\image_viewer.py:81
+msgid "Ctrl+*"
+msgstr "Ctrl+*"
+
+#: qt\pe\image_viewer.py:86
+msgid "Best fit"
+msgstr "Найкраще підходить"
+
+#: qt\pe\preferences_dialog.py:49
+msgid "Picture cache mode:"
+msgstr "Режим кешування зображення:"
+
+#: qt\pe\preferences_dialog.py:56
+msgid "Override theme icons in viewer toolbar"
+msgstr "Замінити значки тем на панелі інструментів засобу перегляду"
+
+#: qt\pe\preferences_dialog.py:58
+msgid ""
+"Use our own internal icons instead of those provided by the theme engine"
+msgstr ""
+"Використовуйте наші власні внутрішні піктограми замість тих, що надаються "
+"механізмом теми"
+
+#: qt\pe\preferences_dialog.py:66
+msgid "Show scrollbars in image viewers"
+msgstr "Показувати смуги прокрутки в засобах перегляду зображень"
+
+#: qt\pe\preferences_dialog.py:68
+msgid ""
+"When the image displayed doesn't fit the viewport, show scrollbars to span "
+"the view around"
+msgstr ""
+"Коли зображення, що відображається, не відповідає області перегляду, "
+"покажіть смуги прокрутки, щоб перемістити подання"
+
+#: qt\preferences_dialog.py:156
+msgid "Use default position for tab bar (requires restart)"
+msgstr ""
+"Використовуйте положення за замовчуванням для панелі вкладок (потрібно "
+"перезапуск)"
+
+#: qt\preferences_dialog.py:158
+msgid ""
+"Place the tab bar below the main menu instead of next to it\n"
+"On MacOS, the tab bar will fill up the window's width instead."
+msgstr ""
+"Розташуйте панель вкладок під головним меню, а не поруч з нею.\n"
+"На MacOS, панель вкладок буде заповнити ширину вікна замість цього."
+
+#: qt\preferences_dialog.py:172
+msgid "Use bold font for references"
+msgstr "Використовуйте жирний шрифт для посилальних елементів."
+
+#: qt\preferences_dialog.py:176
+msgid "Reference foreground color:"
+msgstr "Довідковий колір переднього плану:"
+
+#: qt\preferences_dialog.py:179
+msgid "Reference background color:"
+msgstr "Довідковий колір тла:"
+
+#: qt\preferences_dialog.py:182 qt\preferences_dialog.py:216
+msgid "Delta foreground color:"
+msgstr "Колір переднього плану Delta:"
+
+#: qt\preferences_dialog.py:195
+msgid "Show the title bar and can be docked"
+msgstr "Показати рядок заголовка і може бути пристикований"
+
+#: qt\preferences_dialog.py:197
+msgid ""
+"While the title bar is hidden, use the modifier key to drag the floating "
+"window around"
+msgstr ""
+"Поки рядок заголовка прихований, за допомогою клавіші модифікатора "
+"перетягніть плаваюче вікно навколо"
+
+#: qt\preferences_dialog.py:199
+msgid "The title bar can only be disabled while the window is docked"
+msgstr "Рядок заголовка можна вимкнути лише тоді, коли вікно закріплено"
+
+#: qt\preferences_dialog.py:202
+msgid "Vertical title bar"
+msgstr "Вертикальний рядок заголовка"
+
+#: qt\preferences_dialog.py:204
+msgid ""
+"Change the title bar from horizontal on top, to vertical on the left side"
+msgstr ""
+"Змініть рядок заголовка з горизонтального зверху на вертикальний зліва"
+
+#: qt\tabbed_window.py:44
+msgid "Show tab bar"
+msgstr "Показати панель вкладок"
+
+#: qt\exclude_list_dialog.py:152
+msgid ""
+"These (case sensitive) python regular expressions will filter out files during scans.<br>Directores will also have their <strong>default state</strong> set to Excluded in the Directories tab if their name happens to match one of the selected regular expressions.<br>For each file collected, two tests are performed to determine whether or not to completely ignore it:<br><li>1. Regular expressions with no path separator in them will be compared to the file name only.</li>\n"
+"<li>2. Regular expressions with at least one path separator in them will be compared to the full path to the file.</li><br>\n"
+"Example: if you want to filter out .PNG files from the \"My Pictures\" directory only:<br><code>.*My\\sPictures\\\\.*\\.png</code><br><br>You can test the regular expression with the \"test string\" button after pasting a fake path in the test field:<br><code>C:\\\\User\\My Pictures\\test.png</code><br><br>\n"
+"Matching regular expressions will be highlighted.<br>If there is at least one highlight, the path or filename tested will be ignored during scans.<br><br>Directories and files starting with a period '.' are filtered out by default.<br><br>"
+msgstr ""
+"Ці регулярні вирази python (чутливі до регістру) фільтруватимуть файли під час сканування.<br>Також для каталогів буде встановлено <strong>статус за замовчуванням</strong> \"Виключено\" на вкладці \"Каталоги\", якщо їх ім'я збігається з одним із вибраних регулярних виразів.<br>Для кожного зібраного файлу проводяться два тести, щоб визначити, чи повністю його ігнорувати:<br><li>1. Регулярні вирази, у яких немає роздільника шляху, будуть порівнюватися лише з назвою файлу.</li>\n"
+"<li>2. Регулярні вирази, що містять принаймні один роздільник шляхів, будуть порівняні з повним шляхом до файлу.</li><br>\n"
+"Приклад: якщо ви хочете відфільтрувати файли PNG лише з каталогу \"Мої фотографії\":<br><code>.*My\\sPictures\\\\.*\\.png</code><br><br>Ви можете перевірити регулярний вираз за допомогою кнопки \"тестовий рядок\" після вставки підробленого шляху в тестове поле:<br><code>C:\\\\User\\My Pictures\\test.png</code><br><br>\n"
+"Відповідні регулярні вирази будуть виділені. <br>Якщо є хоча б одне виділення, тестований шлях або ім’я файлу буде проігноровано під час сканування.<br><br>Каталоги та файли, що починаються з крапки '.' за замовчуванням відфільтровуються.<br><br>"
+
+#: qt\app.py:256
+msgid "Results"
+msgstr "Результати"
+
+#: qt\preferences_dialog.py:150
+msgid "General Interface"
+msgstr "Загальний інтерфейс"
+
+#: qt\preferences_dialog.py:176
+msgid "Result Table"
+msgstr "Таблиця результатів"
+
+#: qt\preferences_dialog.py:205
+msgid "Details Window"
+msgstr "Вікно деталей"
+
+#: qt\preferences_dialog.py:285
+msgid "General"
+msgstr "Загальні"
+
+#: qt\preferences_dialog.py:286
+msgid "Display"
+msgstr "Дисплей"
