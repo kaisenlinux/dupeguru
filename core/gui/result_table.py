@@ -41,11 +41,11 @@ class DupeRow(Row):
             # table.DELTA_COLUMNS are always "delta"
             self._delta_columns = self.table.DELTA_COLUMNS.copy()
             dupe_info = self.data
+            if self._group.ref is None:
+                return False
             ref_info = self._group.ref.get_display_info(group=self._group, delta=False)
             for key, value in dupe_info.items():
-                if (key not in self._delta_columns) and (
-                    ref_info[key].lower() != value.lower()
-                ):
+                if (key not in self._delta_columns) and (ref_info[key].lower() != value.lower()):
                     self._delta_columns.add(key)
         return column_name in self._delta_columns
 
@@ -82,7 +82,7 @@ class ResultTable(GUITable, DupeGuruGUIObject):
     def __init__(self, app):
         GUITable.__init__(self)
         DupeGuruGUIObject.__init__(self, app)
-        self.columns = Columns(self, prefaccess=app, savename="ResultTable")
+        self._columns = Columns(self, prefaccess=app, savename="ResultTable")
         self._power_marker = False
         self._delta_values = False
         self._sort_descriptors = ("name", True)
@@ -190,4 +190,4 @@ class ResultTable(GUITable, DupeGuruGUIObject):
         self.view.refresh()
 
     def save_session(self):
-        self.columns.save_columns()
+        self._columns.save_columns()

@@ -1,7 +1,7 @@
 PYTHON ?= python3
 PYTHON_VERSION_MINOR := $(shell ${PYTHON} -c "import sys; print(sys.version_info.minor)")
 PYRCC5 ?= pyrcc5
-REQ_MINOR_VERSION = 6
+REQ_MINOR_VERSION = 7
 PREFIX ?= /usr/local
 
 # Window compatability via Msys2 
@@ -53,7 +53,7 @@ pyc: | env
 	${VENV_PYTHON} -m compileall ${packages}
 
 reqs:
-ifneq ($(shell test $(PYTHON_VERSION_MINOR) -gt $(REQ_MINOR_VERSION); echo $$?),0)
+ifneq ($(shell test $(PYTHON_VERSION_MINOR) -ge $(REQ_MINOR_VERSION); echo $$?),0)
 	$(error "Python 3.${REQ_MINOR_VERSION}+ required. Aborting.")
 endif
 ifndef NO_VENV

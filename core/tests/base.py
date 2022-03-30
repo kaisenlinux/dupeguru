@@ -88,6 +88,7 @@ class NamedObject:
         self.size = size
         self.md5partial = name
         self.md5 = name
+        self.md5samples = name
         if with_words:
             self.words = getwords(name)
         self.is_ref = False
@@ -139,9 +140,7 @@ def GetTestGroups():
     matches = engine.getmatches(objects)  # we should have 5 matches
     groups = engine.get_groups(matches)  # We should have 2 groups
     for g in groups:
-        g.prioritize(
-            lambda x: objects.index(x)
-        )  # We want the dupes to be in the same order as the list is
+        g.prioritize(lambda x: objects.index(x))  # We want the dupes to be in the same order as the list is
     groups.sort(key=len, reverse=True)  # We want the group with 3 members to be first.
     return (objects, matches, groups)
 
@@ -152,8 +151,8 @@ class TestApp(TestAppBase):
     def __init__(self):
         def link_gui(gui):
             gui.view = self.make_logger()
-            if hasattr(gui, "columns"):  # tables
-                gui.columns.view = self.make_logger()
+            if hasattr(gui, "_columns"):  # tables
+                gui._columns.view = self.make_logger()
             return gui
 
         TestAppBase.__init__(self)

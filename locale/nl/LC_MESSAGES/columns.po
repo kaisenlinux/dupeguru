@@ -1,9 +1,10 @@
 # Translators:
 # Andrew Senetar <arsenetar@gmail.com>, 2021
+# Bas <duvel3@gmail.com>, 2021
 #
 msgid ""
 msgstr ""
-"Last-Translator: Andrew Senetar <arsenetar@gmail.com>, 2021\n"
+"Last-Translator: Bas <duvel3@gmail.com>, 2021\n"
 "Language-Team: Dutch (https://www.transifex.com/voltaicideas/teams/116153/nl/)\n"
 "Language: nl\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -13,11 +14,11 @@ msgstr ""
 #: core\gui\ignore_list_table.py:19 core\gui\ignore_list_table.py:20
 #: core\gui\problem_table.py:18
 msgid "File Path"
-msgstr "Bestand locatie"
+msgstr "Bestandspad"
 
 #: core\gui\problem_table.py:19
 msgid "Error Message"
-msgstr "Fout Melding"
+msgstr "Foutmelding"
 
 #: core\me\prioritize.py:23
 msgid "Duration"
@@ -39,11 +40,11 @@ msgstr "Bestandsnaam"
 #: core\me\result_table.py:20 core\pe\result_table.py:20 core\prioritize.py:75
 #: core\se\result_table.py:20
 msgid "Folder"
-msgstr "Folder"
+msgstr "Map"
 
 #: core\me\result_table.py:21
 msgid "Size (MB)"
-msgstr "Grote (MB)"
+msgstr "Grootte (MB)"
 
 #: core\me\result_table.py:22
 msgid "Time"
@@ -56,7 +57,7 @@ msgstr "Sample Frequentie"
 #: core\me\result_table.py:25 core\pe\result_table.py:22 core\prioritize.py:65
 #: core\se\result_table.py:22
 msgid "Kind"
-msgstr "Kind"
+msgstr "Soort"
 
 #: core\me\result_table.py:26 core\pe\result_table.py:25
 #: core\prioritize.py:163 core\se\result_table.py:23
@@ -111,7 +112,7 @@ msgstr "Afmetingen"
 
 #: core\pe\result_table.py:21 core\se\result_table.py:21
 msgid "Size (KB)"
-msgstr "Grote (KB)"
+msgstr "Grootte (KB)"
 
 #: core\pe\result_table.py:24
 msgid "EXIF Timestamp"
@@ -119,4 +120,4 @@ msgstr "EXIF Tijdstip"
 
 #: core\prioritize.py:156
 msgid "Size"
-msgstr "Grote"
+msgstr "Grootte"

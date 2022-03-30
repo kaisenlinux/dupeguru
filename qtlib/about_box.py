@@ -18,6 +18,7 @@ from PyQt5.QtWidgets import (
     QApplication,
 )
 
+from qtlib.util import move_to_screen_center
 from hscommon.trans import trget
 
 tr = trget("qtlib")
@@ -25,12 +26,7 @@ tr = trget("qtlib")
 
 class AboutBox(QDialog):
     def __init__(self, parent, app, **kwargs):
-        flags = (
-            Qt.CustomizeWindowHint
-            | Qt.WindowTitleHint
-            | Qt.WindowSystemMenuHint
-            | Qt.MSWindowsFixedSizeDialogHint
-        )
+        flags = Qt.CustomizeWindowHint | Qt.WindowTitleHint | Qt.WindowSystemMenuHint | Qt.MSWindowsFixedSizeDialogHint
         super().__init__(parent, flags, **kwargs)
         self.app = app
         self._setupUi()
@@ -39,15 +35,13 @@ class AboutBox(QDialog):
         self.buttonBox.rejected.connect(self.reject)
 
     def _setupUi(self):
-        self.setWindowTitle(
-            tr("About {}").format(QCoreApplication.instance().applicationName())
-        )
+        self.setWindowTitle(tr("About {}").format(QCoreApplication.instance().applicationName()))
         self.resize(400, 290)
-        sizePolicy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.sizePolicy().hasHeightForWidth())
-        self.setSizePolicy(sizePolicy)
+        size_policy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        size_policy.setHorizontalStretch(0)
+        size_policy.setVerticalStretch(0)
+        size_policy.setHeightForWidth(self.sizePolicy().hasHeightForWidth())
+        self.setSizePolicy(size_policy)
         self.horizontalLayout = QHBoxLayout(self)
         self.logoLabel = QLabel(self)
         self.logoLabel.setPixmap(QPixmap(":/%s_big" % self.app.LOGO_NAME))
@@ -61,9 +55,7 @@ class AboutBox(QDialog):
         self.nameLabel.setText(QCoreApplication.instance().applicationName())
         self.verticalLayout.addWidget(self.nameLabel)
         self.versionLabel = QLabel(self)
-        self.versionLabel.setText(
-            tr("Version {}").format(QCoreApplication.instance().applicationVersion())
-        )
+        self.versionLabel.setText(tr("Version {}").format(QCoreApplication.instance().applicationVersion()))
         self.verticalLayout.addWidget(self.versionLabel)
         self.label_3 = QLabel(self)
         self.verticalLayout.addWidget(self.label_3)
@@ -79,6 +71,11 @@ class AboutBox(QDialog):
         self.buttonBox.setStandardButtons(QDialogButtonBox.Ok)
         self.verticalLayout.addWidget(self.buttonBox)
         self.horizontalLayout.addLayout(self.verticalLayout)
+
+    def showEvent(self, event):
+        # have to do this here as the frameGeometry is not correct until shown
+        move_to_screen_center(self)
+        super().showEvent(event)
 
 
 if __name__ == "__main__":

@@ -30,4 +30,5 @@ Depends: ${shlibs:Depends},
 	 python3-pyqt5,
 	 python3-pytest,
 	 python3-flake8,
+	 python3-mutagen,
 Description: Find duplicate files

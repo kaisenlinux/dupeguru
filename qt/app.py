@@ -8,15 +8,15 @@ import sys
 import os.path as op
 
 from PyQt5.QtCore import QTimer, QObject, QUrl, pyqtSignal, Qt
-from PyQt5.QtGui import QDesktopServices
-from PyQt5.QtWidgets import QApplication, QFileDialog, QDialog, QMessageBox
+from PyQt5.QtGui import QColor, QDesktopServices, QPalette
+from PyQt5.QtWidgets import QApplication, QFileDialog, QDialog, QMessageBox, QStyleFactory, QToolTip
 
 from hscommon.trans import trget
-from hscommon import desktop
+from hscommon import desktop, plat
 
 from qtlib.about_box import AboutBox
 from qtlib.recent import Recent
-from qtlib.util import createActions
+from qtlib.util import create_actions
 from qtlib.progress_window import ProgressWindow
 
 from core.app import AppMode, DupeGuru as DupeGuruModel
@@ -52,7 +52,7 @@ class DupeGuru(QObject):
         # Enable tabs instead of separate floating windows for each dialog
         # Could be passed as an argument to this class if we wanted
         self.use_tabs = True
-        self.model = DupeGuruModel(view=self)
+        self.model = DupeGuruModel(view=self, portable=self.prefs.portable)
         self._setup()
 
     # --- Private
@@ -65,18 +65,10 @@ class DupeGuru(QObject):
         self.recentResults.mustOpenItem.connect(self.model.load_from)
         self.resultWindow = None
         if self.use_tabs:
-            self.main_window = (
-                TabBarWindow(self)
-                if not self.prefs.tabs_default_pos
-                else TabWindow(self)
-            )
+            self.main_window = TabBarWindow(self) if not self.prefs.tabs_default_pos else TabWindow(self)
             parent_window = self.main_window
-            self.directories_dialog = self.main_window.createPage(
-                "DirectoriesDialog", app=self
-            )
-            self.main_window.addTab(
-                self.directories_dialog, tr("Directories"), switch=False
-            )
+            self.directories_dialog = self.main_window.createPage("DirectoriesDialog", app=self)
+            self.main_window.addTab(self.directories_dialog, tr("Directories"), switch=False)
             self.actionDirectoriesWindow.setEnabled(False)
         else:  # floating windows only
             self.main_window = None
@@ -84,9 +76,7 @@ class DupeGuru(QObject):
             parent_window = self.directories_dialog
 
         self.progress_window = ProgressWindow(parent_window, self.model.progress_window)
-        self.problemDialog = ProblemDialog(
-            parent=parent_window, model=self.model.problem_dialog
-        )
+        self.problemDialog = ProblemDialog(parent=parent_window, model=self.model.problem_dialog)
         if self.use_tabs:
             self.ignoreListDialog = self.main_window.createPage(
                 "IgnoreListDialog",
@@ -101,16 +91,10 @@ class DupeGuru(QObject):
                 model=self.model.exclude_list_dialog,
             )
         else:
-            self.ignoreListDialog = IgnoreListDialog(
-                parent=parent_window, model=self.model.ignore_list_dialog
-            )
-            self.excludeDialog = ExcludeListDialog(
-                app=self, parent=parent_window, model=self.model.exclude_list_dialog
-            )
+            self.ignoreListDialog = IgnoreListDialog(parent=parent_window, model=self.model.ignore_list_dialog)
+            self.excludeDialog = ExcludeListDialog(app=self, parent=parent_window, model=self.model.exclude_list_dialog)
 
-        self.deletionOptions = DeletionOptions(
-            parent=parent_window, model=self.model.deletion_options
-        )
+        self.deletionOptions = DeletionOptions(parent=parent_window, model=self.model.deletion_options)
         self.about_box = AboutBox(parent_window, self)
 
         parent_window.show()
@@ -145,11 +129,11 @@ class DupeGuru(QObject):
                 self.showDirectoriesWindow,
             ),
             (
-                "actionClearPictureCache",
+                "actionClearCache",
                 "Ctrl+Shift+P",
                 "",
-                tr("Clear Picture Cache"),
-                self.clearPictureCacheTriggered,
+                tr("Clear Cache"),
+                self.clearCacheTriggered,
             ),
             (
                 "actionExcludeList",
@@ -168,26 +152,31 @@ class DupeGuru(QObject):
                 self.openDebugLogTriggered,
             ),
         ]
-        createActions(ACTIONS, self)
+        create_actions(ACTIONS, self)
 
     def _update_options(self):
         self.model.options["mix_file_kind"] = self.prefs.mix_file_kind
         self.model.options["escape_filter_regexp"] = not self.prefs.use_regexp
         self.model.options["clean_empty_dirs"] = self.prefs.remove_empty_folders
-        self.model.options[
-            "ignore_hardlink_matches"
-        ] = self.prefs.ignore_hardlink_matches
+        self.model.options["ignore_hardlink_matches"] = self.prefs.ignore_hardlink_matches
         self.model.options["copymove_dest_type"] = self.prefs.destination_type
         self.model.options["scan_type"] = self.prefs.get_scan_type(self.model.app_mode)
         self.model.options["min_match_percentage"] = self.prefs.filter_hardness
         self.model.options["word_weighting"] = self.prefs.word_weighting
         self.model.options["match_similar_words"] = self.prefs.match_similar
-        threshold = (
-            self.prefs.small_file_threshold if self.prefs.ignore_small_files else 0
+        threshold = self.prefs.small_file_threshold if self.prefs.ignore_small_files else 0
+        self.model.options["size_threshold"] = threshold * 1024  # threshold is in KB. The scanner wants bytes
+        large_threshold = self.prefs.large_file_threshold if self.prefs.ignore_large_files else 0
+        self.model.options["large_size_threshold"] = (
+            large_threshold * 1024 * 1024
+        )  # threshold is in MB. The Scanner wants bytes
+        big_file_size_threshold = self.prefs.big_file_size_threshold if self.prefs.big_file_partial_hashes else 0
+        self.model.options["big_file_size_threshold"] = (
+            big_file_size_threshold
+            * 1024
+            * 1024
+            # threshold is in MiB. The scanner wants bytes
         )
-        self.model.options["size_threshold"] = (
-            threshold * 1024
-        )  # threshold is in KB. the scanner wants bytes
         scanned_tags = set()
         if self.prefs.scan_tag_track:
             scanned_tags.add("track")
@@ -208,22 +197,57 @@ class DupeGuru(QObject):
         if self.details_dialog:
             self.details_dialog.update_options()
 
+        self._set_style("dark" if self.prefs.use_dark_style else "light")
+
     # --- Private
     def _get_details_dialog_class(self):
-        if self.model.app_mode == AppMode.Picture:
+        if self.model.app_mode == AppMode.PICTURE:
             return DetailsDialogPicture
-        elif self.model.app_mode == AppMode.Music:
+        elif self.model.app_mode == AppMode.MUSIC:
             return DetailsDialogMusic
         else:
             return DetailsDialogStandard
 
     def _get_preferences_dialog_class(self):
-        if self.model.app_mode == AppMode.Picture:
+        if self.model.app_mode == AppMode.PICTURE:
             return PreferencesDialogPicture
-        elif self.model.app_mode == AppMode.Music:
+        elif self.model.app_mode == AppMode.MUSIC:
             return PreferencesDialogMusic
         else:
             return PreferencesDialogStandard
+
+    def _set_style(self, style="light"):
+        # Only support this feature on windows for now
+        if not plat.ISWINDOWS:
+            return
+        if style == "dark":
+            QApplication.setStyle(QStyleFactory.create("Fusion"))
+            palette = QApplication.style().standardPalette()
+            palette.setColor(QPalette.ColorRole.Window, QColor(53, 53, 53))
+            palette.setColor(QPalette.ColorRole.WindowText, Qt.white)
+            palette.setColor(QPalette.ColorRole.Base, QColor(25, 25, 25))
+            palette.setColor(QPalette.ColorRole.AlternateBase, QColor(53, 53, 53))
+            palette.setColor(QPalette.ColorRole.ToolTipBase, QColor(53, 53, 53))
+            palette.setColor(QPalette.ColorRole.ToolTipText, Qt.white)
+            palette.setColor(QPalette.ColorRole.Text, Qt.white)
+            palette.setColor(QPalette.ColorRole.Button, QColor(53, 53, 53))
+            palette.setColor(QPalette.ColorRole.ButtonText, Qt.white)
+            palette.setColor(QPalette.ColorRole.BrightText, Qt.red)
+            palette.setColor(QPalette.ColorRole.Link, QColor(42, 130, 218))
+            palette.setColor(QPalette.ColorRole.Highlight, QColor(42, 130, 218))
+            palette.setColor(QPalette.ColorRole.HighlightedText, Qt.black)
+            palette.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Text, QColor(164, 166, 168))
+            palette.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.WindowText, QColor(164, 166, 168))
+            palette.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.ButtonText, QColor(164, 166, 168))
+            palette.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.HighlightedText, QColor(164, 166, 168))
+            palette.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Base, QColor(68, 68, 68))
+            palette.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Window, QColor(68, 68, 68))
+            palette.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Highlight, QColor(68, 68, 68))
+        else:
+            QApplication.setStyle(QStyleFactory.create("windowsvista" if plat.ISWINDOWS else "Fusion"))
+            palette = QApplication.style().standardPalette()
+        QToolTip.setPalette(palette)
+        QApplication.setPalette(palette)
 
     # --- Public
     def add_selected_to_ignore_list(self):
@@ -252,9 +276,7 @@ class DupeGuru(QObject):
         if self.resultWindow is not None:
             if self.use_tabs:
                 if self.main_window.indexOfWidget(self.resultWindow) < 0:
-                    self.main_window.addTab(
-                        self.resultWindow, tr("Results"), switch=True
-                    )
+                    self.main_window.addTab(self.resultWindow, tr("Results"), switch=True)
                     return
                 self.main_window.showTab(self.resultWindow)
             else:
@@ -271,6 +293,10 @@ class DupeGuru(QObject):
         self.willSavePrefs.emit()
         self.prefs.save()
         self.model.save()
+        self.model.close()
+        # Workaround for #857, hide() or close().
+        if self.details_dialog is not None:
+            self.details_dialog.close()
         QApplication.quit()
 
     # --- Signals
@@ -291,14 +317,21 @@ class DupeGuru(QObject):
                 "Wrong Locale",
                 msg,
             )
+        # Load results on open if passed a .dupeguru file
+        if len(sys.argv) > 1:
+            results = sys.argv[1]
+            if results.endswith(".dupeguru"):
+                self.model.load_from(results)
+                self.recentResults.insertItem(results)
 
-    def clearPictureCacheTriggered(self):
-        title = tr("Clear Picture Cache")
-        msg = tr("Do you really want to remove all your cached picture analysis?")
+    def clearCacheTriggered(self):
+        title = tr("Clear Cache")
+        msg = tr("Do you really want to clear the cache? This will remove all cached file hashes and picture analysis.")
         if self.confirm(title, msg, QMessageBox.No):
             self.model.clear_picture_cache()
+            self.model.clear_hash_cache()
             active = QApplication.activeWindow()
-            QMessageBox.information(active, title, tr("Picture cache cleared."))
+            QMessageBox.information(active, title, tr("Cache cleared."))
 
     def ignoreListTriggered(self):
         if self.use_tabs:
@@ -308,9 +341,7 @@ class DupeGuru(QObject):
 
     def excludeListTriggered(self):
         if self.use_tabs:
-            self.showTriggeredTabbedDialog(
-                self.excludeListDialog, tr("Exclusion Filters")
-            )
+            self.showTriggeredTabbedDialog(self.excludeListDialog, tr("Exclusion Filters"))
         else:  # floating windows
             self.model.exclude_list_dialog.show()
 
@@ -318,16 +349,14 @@ class DupeGuru(QObject):
         """Add tab for dialog, name the tab with desc_string, then show it."""
         index = self.main_window.indexOfWidget(dialog)
         # Create the tab if it doesn't exist already
-        if (
-            index < 0
-        ):  # or (not dialog.isVisible() and not self.main_window.isTabVisible(index)):
+        if index < 0:  # or (not dialog.isVisible() and not self.main_window.isTabVisible(index)):
             index = self.main_window.addTab(dialog, desc_string, switch=True)
         # Show the tab for that widget
         self.main_window.setCurrentIndex(index)
 
     def openDebugLogTriggered(self):
-        debugLogPath = op.join(self.model.appdata, "debug.log")
-        desktop.open_path(debugLogPath)
+        debug_log_path = op.join(self.model.appdata, "debug.log")
+        desktop.open_path(debug_log_path)
 
     def preferencesTriggered(self):
         preferences_dialog = self._get_preferences_dialog_class()(
@@ -392,13 +421,9 @@ class DupeGuru(QObject):
         if self.resultWindow is not None:
             self.resultWindow.close()
             # This is better for tabs, as it takes care of duplicate items in menu bar
-            self.resultWindow.deleteLater() if self.use_tabs else self.resultWindow.setParent(
-                None
-            )
+            self.resultWindow.deleteLater() if self.use_tabs else self.resultWindow.setParent(None)
         if self.use_tabs:
-            self.resultWindow = self.main_window.createPage(
-                "ResultWindow", parent=self.main_window, app=self
-            )
+            self.resultWindow = self.main_window.createPage("ResultWindow", parent=self.main_window, app=self)
         else:  # We don't use a tab widget, regular floating QMainWindow
             self.resultWindow = ResultWindow(self.directories_dialog, self)
             self.directories_dialog._updateActionsState()
@@ -416,9 +441,7 @@ class DupeGuru(QObject):
 
     def select_dest_file(self, prompt, extension):
         files = tr("{} file (*.{})").format(extension.upper(), extension)
-        destination, chosen_filter = QFileDialog.getSaveFileName(
-            self.resultWindow, prompt, "", files
-        )
+        destination, chosen_filter = QFileDialog.getSaveFileName(self.resultWindow, prompt, "", files)
         if not destination.endswith(".{}".format(extension)):
             destination = "{}.{}".format(destination, extension)
         return destination

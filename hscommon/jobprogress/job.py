@@ -56,8 +56,7 @@ class Job:
 
     # ---Private
     def _subjob_callback(self, progress, desc=""):
-        """This is the callback passed to children jobs.
-        """
+        """This is the callback passed to children jobs."""
         self.set_progress(progress, desc)
         return True  # if JobCancelled has to be raised, it will be at the highest level
 
@@ -140,31 +139,34 @@ class Job:
         self._progress = progress
         if self._progress > self._currmax:
             self._progress = self._currmax
-        if self._progress < 0:
-            self._progress = 0
         self._do_update(desc)
 
 
 class NullJob:
     def __init__(self, *args, **kwargs):
+        # Null job does nothing
         pass
 
     def add_progress(self, *args, **kwargs):
+        # Null job does nothing
         pass
 
     def check_if_cancelled(self):
+        # Null job does nothing
         pass
 
     def iter_with_progress(self, sequence, *args, **kwargs):
         return iter(sequence)
 
     def start_job(self, *args, **kwargs):
+        # Null job does nothing
         pass
 
     def start_subjob(self, *args, **kwargs):
         return NullJob()
 
     def set_progress(self, *args, **kwargs):
+        # Null job does nothing
         pass
 
 

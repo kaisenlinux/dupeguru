@@ -9,6 +9,7 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QDockWidget, QWidget
 
+from qtlib.util import move_to_screen_center
 from .details_table import DetailsModel
 from hscommon.plat import ISLINUX
 
@@ -31,8 +32,7 @@ class DetailsDialog(QDockWidget):
         self.model.view = self
         self.app.willSavePrefs.connect(self.appWillSavePrefs)
         # self.setAttribute(Qt.WA_DeleteOnClose)
-        parent.addDockWidget(
-            area if self._wasDocked else Qt.BottomDockWidgetArea, self)
+        parent.addDockWidget(area if self._wasDocked else Qt.BottomDockWidgetArea, self)
 
     def _setupUi(self):  # Virtual
         pass
@@ -51,7 +51,7 @@ class DetailsDialog(QDockWidget):
             if not self.titleBarWidget():  # default title bar
                 self.setTitleBarWidget(QWidget())  # disables title bar
                 # Windows (and MacOS?) users cannot move a floating window which
-                # has not native decoration so we force it to dock for now
+                # has no native decoration so we force it to dock for now
                 if not ISLINUX:
                     self.setFloating(False)
         elif self.titleBarWidget() is not None:  # title bar is disabled
@@ -74,3 +74,9 @@ class DetailsDialog(QDockWidget):
     def refresh(self):
         self.tableModel.beginResetModel()
         self.tableModel.endResetModel()
+
+    def showEvent(self, event):
+        if self._wasDocked is False:
+            # have to do this here as the frameGeometry is not correct until shown
+            move_to_screen_center(self)
+        super().showEvent(event)

@@ -19,6 +19,7 @@ from PyQt5.QtWidgets import (
     QAbstractItemView,
 )
 
+from qtlib.util import move_to_screen_center
 from hscommon.trans import trget
 from .problem_table import ProblemTable
 
@@ -63,10 +64,15 @@ class ProblemDialog(QDialog):
         self.revealButton = QPushButton(self)
         self.revealButton.setText(tr("Reveal Selected"))
         self.horizontalLayout.addWidget(self.revealButton)
-        spacerItem = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-        self.horizontalLayout.addItem(spacerItem)
+        spacer_item = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.horizontalLayout.addItem(spacer_item)
         self.closeButton = QPushButton(self)
         self.closeButton.setText(tr("Close"))
         self.closeButton.setDefault(True)
         self.horizontalLayout.addWidget(self.closeButton)
         self.verticalLayout.addLayout(self.horizontalLayout)
+
+    def showEvent(self, event):
+        # have to do this here as the frameGeometry is not correct until shown
+        move_to_screen_center(self)
+        super().showEvent(event)

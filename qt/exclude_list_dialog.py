@@ -5,13 +5,22 @@
 import re
 from PyQt5.QtCore import Qt, pyqtSlot
 from PyQt5.QtWidgets import (
-    QPushButton, QLineEdit, QVBoxLayout, QGridLayout, QDialog,
-    QTableView, QAbstractItemView, QSpacerItem, QSizePolicy, QHeaderView
+    QPushButton,
+    QLineEdit,
+    QVBoxLayout,
+    QGridLayout,
+    QDialog,
+    QTableView,
+    QAbstractItemView,
+    QSpacerItem,
+    QSizePolicy,
+    QHeaderView,
 )
 from .exclude_list_table import ExcludeListTable
 
 from core.exclude import AlreadyThereException
 from hscommon.trans import trget
+
 tr = trget("ui")
 
 
@@ -51,9 +60,7 @@ class ExcludeListDialog(QDialog):
         self.testLine = QLineEdit()
         self.tableView = QTableView()
         triggers = (
-            QAbstractItemView.DoubleClicked
-            | QAbstractItemView.EditKeyPressed
-            | QAbstractItemView.SelectedClicked
+            QAbstractItemView.DoubleClicked | QAbstractItemView.EditKeyPressed | QAbstractItemView.SelectedClicked
         )
         self.tableView.setEditTriggers(triggers)
         self.tableView.setSelectionMode(QTableView.ExtendedSelection)
@@ -116,31 +123,32 @@ class ExcludeListDialog(QDialog):
         if not input_text:
             self.reset_input_style()
             return
-        # if at least one row matched, we know whether table is highlighted or not
+        # If at least one row matched, we know whether table is highlighted or not
         self._row_matched = self.model.test_string(input_text)
         self.table.refresh()
 
+        # Test the string currently in the input text box as well
         input_regex = self.inputLine.text()
         if not input_regex:
             self.reset_input_style()
             return
+        compiled = None
         try:
             compiled = re.compile(input_regex)
         except re.error:
             self.reset_input_style()
             return
-        match = compiled.match(input_text)
-        if match:
-            self._input_styled = True
+        if self.model.is_match(input_text, compiled):
             self.inputLine.setStyleSheet("background-color: rgb(10, 200, 10);")
+            self._input_styled = True
         else:
             self.reset_input_style()
 
     def reset_input_style(self):
         """Reset regex input line background"""
         if self._input_styled:
-            self._input_styled = False
             self.inputLine.setStyleSheet(self.styleSheet())
+            self._input_styled = False
 
     def reset_table_style(self):
         if self._row_matched:
@@ -149,7 +157,9 @@ class ExcludeListDialog(QDialog):
         self.table.refresh()
 
     def display_help_message(self):
-        self.app.show_message(tr("""\
+        self.app.show_message(
+            tr(
+                """\
 These (case sensitive) python regular expressions will filter out files during scans.<br>\
 Directores will also have their <strong>default state</strong> set to Excluded \
 in the Directories tab if their name happens to match one of the selected regular expressions.<br>\
@@ -162,4 +172,6 @@ You can test the regular expression with the "test string" button after pasting 
 <code>C:\\\\User\\My Pictures\\test.png</code><br><br>
 Matching regular expressions will be highlighted.<br>\
 If there is at least one highlight, the path or filename tested will be ignored during scans.<br><br>\
-Directories and files starting with a period '.' are filtered out by default.<br><br>"""))
+Directories and files starting with a period '.' are filtered out by default.<br><br>"""
+            )
+        )

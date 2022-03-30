@@ -6,19 +6,17 @@ from .base import DupeGuruGUIObject
 from hscommon.gui.table import GUITable, Row
 from hscommon.gui.column import Column, Columns
 from hscommon.trans import trget
+
 tr = trget("ui")
 
 
 class ExcludeListTable(GUITable, DupeGuruGUIObject):
-    COLUMNS = [
-        Column("marked", ""),
-        Column("regex", tr("Regular Expressions"))
-    ]
+    COLUMNS = [Column("marked", ""), Column("regex", tr("Regular Expressions"))]
 
     def __init__(self, exclude_list_dialog, app):
         GUITable.__init__(self)
         DupeGuruGUIObject.__init__(self, app)
-        self.columns = Columns(self)
+        self._columns = Columns(self)
         self.dialog = exclude_list_dialog
 
     def rename_selected(self, newname):
@@ -36,7 +34,7 @@ class ExcludeListTable(GUITable, DupeGuruGUIObject):
         return ExcludeListRow(self, self.dialog.exclude_list.is_marked(regex), regex), 0
 
     def _do_delete(self):
-        self.dalog.exclude_list.remove(self.selected_row.regex)
+        self.dialog.exclude_list.remove(self.selected_row.regex)
 
     # --- Override
     def add(self, regex):

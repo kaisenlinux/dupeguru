@@ -12,12 +12,12 @@ import os.path as op
 import os
 import logging
 
+from core.util import executable_folder
 from hscommon.util import first
 
 from PyQt5.QtCore import QStandardPaths
-from PyQt5.QtGui import QPixmap, QIcon
+from PyQt5.QtGui import QPixmap, QIcon, QGuiApplication
 from PyQt5.QtWidgets import (
-    QDesktopWidget,
     QSpacerItem,
     QSizePolicy,
     QAction,
@@ -25,27 +25,38 @@ from PyQt5.QtWidgets import (
 )
 
 
-def moveToScreenCenter(widget):
+def move_to_screen_center(widget):
     frame = widget.frameGeometry()
-    frame.moveCenter(QDesktopWidget().availableGeometry().center())
-    widget.move(frame.topLeft())
+    if QGuiApplication.screenAt(frame.center()) is None:
+        # if center not on any screen use default screen
+        screen = QGuiApplication.screens()[0].availableGeometry()
+    else:
+        screen = QGuiApplication.screenAt(frame.center()).availableGeometry()
+    # moves to center of screen if partially off screen
+    if screen.contains(frame) is False:
+        # make sure the frame is not larger than screen
+        # resize does not seem to take frame size into account (move does)
+        widget.resize(frame.size().boundedTo(screen.size() - (frame.size() - widget.size())))
+        frame = widget.frameGeometry()
+        frame.moveCenter(screen.center())
+        widget.move(frame.topLeft())
 
 
-def verticalSpacer(size=None):
+def vertical_spacer(size=None):
     if size:
         return QSpacerItem(1, size, QSizePolicy.Fixed, QSizePolicy.Fixed)
     else:
         return QSpacerItem(1, 1, QSizePolicy.Fixed, QSizePolicy.MinimumExpanding)
 
 
-def horizontalSpacer(size=None):
+def horizontal_spacer(size=None):
     if size:
         return QSpacerItem(size, 1, QSizePolicy.Fixed, QSizePolicy.Fixed)
     else:
         return QSpacerItem(1, 1, QSizePolicy.MinimumExpanding, QSizePolicy.Fixed)
 
 
-def horizontalWrap(widgets):
+def horizontal_wrap(widgets):
     """Wrap all widgets in `widgets` in a horizontal layout.
 
     If, instead of placing a widget in your list, you place an int or None, an horizontal spacer
@@ -54,14 +65,14 @@ def horizontalWrap(widgets):
     layout = QHBoxLayout()
     for widget in widgets:
         if widget is None or isinstance(widget, int):
-            layout.addItem(horizontalSpacer(size=widget))
+            layout.addItem(horizontal_spacer(size=widget))
         else:
             layout.addWidget(widget)
     return layout
 
 
-def createActions(actions, target):
-    # actions = [(name, shortcut, icon, desc, func)]
+def create_actions(actions, target):
+    # actions are list of (name, shortcut, icon, desc, func)
     for name, shortcut, icon, desc, func in actions:
         action = QAction(target)
         if icon:
@@ -73,7 +84,7 @@ def createActions(actions, target):
         setattr(target, name, action)
 
 
-def setAccelKeys(menu):
+def set_accel_keys(menu):
     actions = menu.actions()
     titles = [a.text() for a in actions]
     available_characters = {c.lower() for s in titles for c in s if c.isalpha()}
@@ -88,8 +99,11 @@ def setAccelKeys(menu):
         action.setText(newtext)
 
 
-def getAppData():
-    return QStandardPaths.standardLocations(QStandardPaths.DataLocation)[0]
+def get_appdata(portable=False):
+    if portable:
+        return op.join(executable_folder(), "data")
+    else:
+        return QStandardPaths.standardLocations(QStandardPaths.AppDataLocation)[0]
 
 
 class SysWrapper(io.IOBase):
@@ -98,11 +112,11 @@ class SysWrapper(io.IOBase):
             logging.warning(s)
 
 
-def setupQtLogging(level=logging.WARNING, log_to_stdout=False):
+def setup_qt_logging(level=logging.WARNING, log_to_stdout=False):
     # Under Qt, we log in "debug.log" in appdata. Moreover, when under cx_freeze, we have a
     # problem because sys.stdout and sys.stderr are None, so we need to replace them with a
     # wrapper that logs with the logging module.
-    appdata = getAppData()
+    appdata = get_appdata()
     if not op.exists(appdata):
         os.makedirs(appdata)
     # Setup logging
@@ -119,7 +133,7 @@ def setupQtLogging(level=logging.WARNING, log_to_stdout=False):
         sys.stdout = SysWrapper()
 
 
-def escapeamp(s):
+def escape_amp(s):
     # Returns `s` with escaped ampersand (& --> &&). QAction text needs to have & escaped because
     # that character is used to define "accel keys".
     return s.replace("&", "&&")

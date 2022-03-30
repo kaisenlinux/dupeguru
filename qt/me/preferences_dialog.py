@@ -37,8 +37,8 @@ class PreferencesDialog(PreferencesDialogBase):
         self.verticalLayout_4.addWidget(self.label_6)
         self.horizontalLayout_2 = QHBoxLayout()
         self.horizontalLayout_2.setSpacing(0)
-        spacerItem1 = QSpacerItem(15, 20, QSizePolicy.Fixed, QSizePolicy.Minimum)
-        self.horizontalLayout_2.addItem(spacerItem1)
+        spacer_item = QSpacerItem(15, 20, QSizePolicy.Fixed, QSizePolicy.Minimum)
+        self.horizontalLayout_2.addItem(spacer_item)
         self._setupAddCheckbox("tagTrackBox", tr("Track"), self.widget)
         self.horizontalLayout_2.addWidget(self.tagTrackBox)
         self._setupAddCheckbox("tagArtistBox", tr("Artist"), self.widget)
@@ -59,13 +59,9 @@ class PreferencesDialog(PreferencesDialogBase):
         self.widgetsVLayout.addWidget(self.matchSimilarBox)
         self._setupAddCheckbox("mixFileKindBox", tr("Can mix file kind"))
         self.widgetsVLayout.addWidget(self.mixFileKindBox)
-        self._setupAddCheckbox(
-            "useRegexpBox", tr("Use regular expressions when filtering")
-        )
+        self._setupAddCheckbox("useRegexpBox", tr("Use regular expressions when filtering"))
         self.widgetsVLayout.addWidget(self.useRegexpBox)
-        self._setupAddCheckbox(
-            "removeEmptyFoldersBox", tr("Remove empty folders on delete or move")
-        )
+        self._setupAddCheckbox("removeEmptyFoldersBox", tr("Remove empty folders on delete or move"))
         self.widgetsVLayout.addWidget(self.removeEmptyFoldersBox)
         self._setupAddCheckbox(
             "ignoreHardlinkMatches",
@@ -87,14 +83,14 @@ class PreferencesDialog(PreferencesDialogBase):
         setchecked(self.wordWeightingBox, prefs.word_weighting)
 
         # Update UI state based on selected scan type
-        scan_type = prefs.get_scan_type(AppMode.Music)
+        scan_type = prefs.get_scan_type(AppMode.MUSIC)
         word_based = scan_type in (
-            ScanType.Filename,
-            ScanType.Fields,
-            ScanType.FieldsNoOrder,
-            ScanType.Tag,
+            ScanType.FILENAME,
+            ScanType.FIELDS,
+            ScanType.FIELDSNOORDER,
+            ScanType.TAG,
         )
-        tag_based = scan_type == ScanType.Tag
+        tag_based = scan_type == ScanType.TAG
         self.filterHardnessSlider.setEnabled(word_based)
         self.matchSimilarBox.setEnabled(word_based)
         self.wordWeightingBox.setEnabled(word_based)

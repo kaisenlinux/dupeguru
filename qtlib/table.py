@@ -28,43 +28,31 @@ class Table(QAbstractTableModel):
         self.view = view
         self.view.setModel(self)
         self.model.view = self
-        if hasattr(self.model, "columns"):
-            self.columns = Columns(
-                self.model.columns, self.COLUMNS, view.horizontalHeader()
-            )
+        if hasattr(self.model, "_columns"):
+            self._columns = Columns(self.model._columns, self.COLUMNS, view.horizontalHeader())
 
-        self.view.selectionModel().selectionChanged[
-            (QItemSelection, QItemSelection)
-        ].connect(self.selectionChanged)
+        self.view.selectionModel().selectionChanged[(QItemSelection, QItemSelection)].connect(self.selectionChanged)
 
     def _updateModelSelection(self):
         # Takes the selection on the view's side and update the model with it.
         # an _updateViewSelection() call will normally result in an _updateModelSelection() call.
         # to avoid infinite loops, we check that the selection will actually change before calling
         # model.select()
-        newIndexes = [
-            modelIndex.row() for modelIndex in self.view.selectionModel().selectedRows()
-        ]
-        if newIndexes != self.model.selected_indexes:
-            self.model.select(newIndexes)
+        new_indexes = [modelIndex.row() for modelIndex in self.view.selectionModel().selectedRows()]
+        if new_indexes != self.model.selected_indexes:
+            self.model.select(new_indexes)
 
     def _updateViewSelection(self):
         # Takes the selection on the model's side and update the view with it.
-        newSelection = QItemSelection()
-        columnCount = self.columnCount(QModelIndex())
+        new_selection = QItemSelection()
+        column_count = self.columnCount(QModelIndex())
         for index in self.model.selected_indexes:
-            newSelection.select(
-                self.createIndex(index, 0), self.createIndex(index, columnCount - 1)
-            )
-        self.view.selectionModel().select(
-            newSelection, QItemSelectionModel.ClearAndSelect
-        )
-        if len(newSelection.indexes()):
-            currentIndex = newSelection.indexes()[0]
-            self.view.selectionModel().setCurrentIndex(
-                currentIndex, QItemSelectionModel.Current
-            )
-            self.view.scrollTo(currentIndex)
+            new_selection.select(self.createIndex(index, 0), self.createIndex(index, column_count - 1))
+        self.view.selectionModel().select(new_selection, QItemSelectionModel.ClearAndSelect)
+        if len(new_selection.indexes()):
+            current_index = new_selection.indexes()[0]
+            self.view.selectionModel().setCurrentIndex(current_index, QItemSelectionModel.Current)
+            self.view.scrollTo(current_index)
 
     # --- Data Model methods
     # Virtual
@@ -94,28 +82,28 @@ class Table(QAbstractTableModel):
         return False
 
     def columnCount(self, index):
-        return self.model.columns.columns_count()
+        return self.model._columns.columns_count()
 
     def data(self, index, role):
         if not index.isValid():
             return None
         row = self.model[index.row()]
-        column = self.model.columns.column_by_index(index.column())
+        column = self.model._columns.column_by_index(index.column())
         return self._getData(row, column, role)
 
     def flags(self, index):
         if not index.isValid():
             return self.INVALID_INDEX_FLAGS
         row = self.model[index.row()]
-        column = self.model.columns.column_by_index(index.column())
+        column = self.model._columns.column_by_index(index.column())
         return self._getFlags(row, column)
 
     def headerData(self, section, orientation, role):
         if orientation != Qt.Horizontal:
             return None
-        if section >= self.model.columns.columns_count():
+        if section >= self.model._columns.columns_count():
             return None
-        column = self.model.columns.column_by_index(section)
+        column = self.model._columns.column_by_index(section)
         if role == Qt.DisplayRole:
             return column.display
         elif role == Qt.TextAlignmentRole:
@@ -135,11 +123,11 @@ class Table(QAbstractTableModel):
         if not index.isValid():
             return False
         row = self.model[index.row()]
-        column = self.model.columns.column_by_index(index.column())
+        column = self.model._columns.column_by_index(index.column())
         return self._setData(row, column, value, role)
 
     def sort(self, section, order):
-        column = self.model.columns.column_by_index(section)
+        column = self.model._columns.column_by_index(section)
         attrname = column.name
         self.model.sort_by(attrname, desc=order == Qt.DescendingOrder)
 

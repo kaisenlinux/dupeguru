@@ -1,0 +1,990 @@
+# Translators:
+# Yaya - Nurul Azeera Hidayah @ Muhammad Nur Hidayat Yasuyoshi (MNH48) <admin@mnh48.moe>, 2022
+#
+msgid ""
+msgstr ""
+"Last-Translator: Yaya - Nurul Azeera Hidayah @ Muhammad Nur Hidayat Yasuyoshi (MNH48) <admin@mnh48.moe>, 2022\n"
+"Language-Team: Malay (https://www.transifex.com/voltaicideas/teams/116153/ms/)\n"
+"Language: ms\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: utf-8\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: qt/app.py:81
+msgid "Quit"
+msgstr "Keluar"
+
+#: qt/app.py:82 qt/preferences_dialog.py:116
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Options"
+msgstr "Pilihan"
+
+#: qt/app.py:83 qt/ignore_list_dialog.py:32
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Ignore List"
+msgstr "Senarai Abai"
+
+#: qt/app.py:84 qt/app.py:179 cocoa/en.lproj/Localizable.strings:0
+msgid "Clear Picture Cache"
+msgstr "Kosongkan Cache Gambar"
+
+#: qt/app.py:85 cocoa/en.lproj/Localizable.strings:0
+msgid "dupeGuru Help"
+msgstr "Bantuan dupeGuru"
+
+#: qt/app.py:86 cocoa/en.lproj/Localizable.strings:0
+msgid "About dupeGuru"
+msgstr "Mengenai dupeGuru"
+
+#: qt/app.py:87
+msgid "Open Debug Log"
+msgstr "Buka Log Nyahpepijat"
+
+#: qt/app.py:180 cocoa/en.lproj/Localizable.strings:0
+msgid "Do you really want to remove all your cached picture analysis?"
+msgstr ""
+"Adakah anda pasti anda ingin alih keluar kesemua analisis gambar cache anda?"
+
+#: qt/app.py:184
+msgid "Picture cache cleared."
+msgstr "Cache gambar dikosongkan."
+
+#: qt/app.py:251
+msgid "{} file (*.{})"
+msgstr "{} fail (*.{})"
+
+#: qt/deletion_options.py:30 cocoa/en.lproj/Localizable.strings:0
+msgid "Deletion Options"
+msgstr "Pilihan Pemadaman"
+
+#: qt/deletion_options.py:35 cocoa/en.lproj/Localizable.strings:0
+msgid "Link deleted files"
+msgstr "Pautkan fail dipadam"
+
+#: qt/deletion_options.py:37 cocoa/en.lproj/Localizable.strings:0
+msgid ""
+"After having deleted a duplicate, place a link targeting the reference file "
+"to replace the deleted file."
+msgstr ""
+"Setelah duplikasi dipadam, letak pautan menuju fail rujukan untuk "
+"menggantikan fail dipadam."
+
+#: qt/deletion_options.py:44
+msgid "Hardlink"
+msgstr "Pautan Keras"
+
+#: qt/deletion_options.py:44
+msgid "Symlink"
+msgstr "Pautan Bersimbol"
+
+#: qt/deletion_options.py:48
+msgid " (unsupported)"
+msgstr " (tidak disokong)"
+
+#: qt/deletion_options.py:49 cocoa/en.lproj/Localizable.strings:0
+msgid "Directly delete files"
+msgstr "Padam fail secara terus"
+
+#: qt/deletion_options.py:51 cocoa/en.lproj/Localizable.strings:0
+msgid ""
+"Instead of sending files to trash, delete them directly. This option is "
+"usually used as a workaround when the normal deletion method doesn't work."
+msgstr ""
+"Padam fail secara terus dan bukannya hantar fail ke tong sampah. Pilihan ini"
+" selalunya digunakan sebagai penyelesaian apabila kaedah pemadaman biasa "
+"tidak berjaya."
+
+#: qt/deletion_options.py:59 cocoa/en.lproj/Localizable.strings:0
+msgid "Proceed"
+msgstr "Teruskan"
+
+#: qt/deletion_options.py:60 cocoa/en.lproj/Localizable.strings:0
+msgid "Cancel"
+msgstr "Batal"
+
+#: qt/details_table.py:16 cocoa/en.lproj/Localizable.strings:0
+msgid "Attribute"
+msgstr "Atribut"
+
+#: qt/details_table.py:16 cocoa/en.lproj/Localizable.strings:0
+msgid "Selected"
+msgstr "Dipilih"
+
+#: qt/details_table.py:16 qt/directories_model.py:24
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Reference"
+msgstr "Rujukan"
+
+#: qt/directories_dialog.py:64 cocoa/en.lproj/Localizable.strings:0
+msgid "Load Results..."
+msgstr "Muatkan Keputusan..."
+
+#: qt/directories_dialog.py:65 cocoa/en.lproj/Localizable.strings:0
+msgid "Results Window"
+msgstr "Tetingkap Keputusan"
+
+#: qt/directories_dialog.py:66
+msgid "Add Folder..."
+msgstr "Tambah Folder..."
+
+#: qt/directories_dialog.py:74 qt/result_window.py:100
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "File"
+msgstr "Fail"
+
+#: qt/directories_dialog.py:76 qt/result_window.py:108
+msgid "View"
+msgstr "Lihat"
+
+#: qt/directories_dialog.py:78 qt/result_window.py:110
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Help"
+msgstr "Bantuan"
+
+#: qt/directories_dialog.py:80 cocoa/en.lproj/Localizable.strings:0
+msgid "Load Recent Results"
+msgstr "Muatkan Keputusan Baru-baru Ini"
+
+#: qt/directories_dialog.py:116 cocoa/en.lproj/Localizable.strings:0
+msgid "Application Mode:"
+msgstr "Mod Aplikasi:"
+
+#: qt/directories_dialog.py:121 cocoa/en.lproj/Localizable.strings:0
+msgid "Music"
+msgstr "Muzik"
+
+#: qt/directories_dialog.py:121 cocoa/en.lproj/Localizable.strings:0
+msgid "Picture"
+msgstr "Gambar"
+
+#: qt/directories_dialog.py:121 cocoa/en.lproj/Localizable.strings:0
+msgid "Standard"
+msgstr "Piawai"
+
+#: qt/directories_dialog.py:128 cocoa/en.lproj/Localizable.strings:0
+msgid "Scan Type:"
+msgstr "Jenis Imbasan:"
+
+#: qt/directories_dialog.py:135
+msgid "More Options"
+msgstr "Pilihan Lanjutan"
+
+#: qt/directories_dialog.py:139 cocoa/en.lproj/Localizable.strings:0
+msgid "Select folders to scan and press \"Scan\"."
+msgstr "Pilih folder untuk imbas dan tekan \"Imbas\"."
+
+#: qt/directories_dialog.py:163 cocoa/en.lproj/Localizable.strings:0
+msgid "Load Results"
+msgstr "Muatkan Keputusan"
+
+#: qt/directories_dialog.py:166 cocoa/en.lproj/Localizable.strings:0
+msgid "Scan"
+msgstr "Imbas"
+
+#: qt/directories_dialog.py:230
+msgid "Unsaved results"
+msgstr "Keputusan belum disimpan"
+
+#: qt/directories_dialog.py:231 cocoa/en.lproj/Localizable.strings:0
+msgid "You have unsaved results, do you really want to quit?"
+msgstr ""
+"Anda mempunyai keputusan yang belum disimpan, adakah anda pasti anda ingin "
+"keluar?"
+
+#: qt/directories_dialog.py:239 cocoa/en.lproj/Localizable.strings:0
+msgid "Select a folder to add to the scanning list"
+msgstr "Pilih folder untuk tambah ke senarai imbasan"
+
+#: qt/directories_dialog.py:266 cocoa/en.lproj/Localizable.strings:0
+msgid "Select a results file to load"
+msgstr "Pilih fail keputusan untuk dimuatkan"
+
+#: qt/directories_dialog.py:267
+msgid "All Files (*.*)"
+msgstr "Semua Fail (*.*)"
+
+#: qt/directories_dialog.py:267 qt/result_window.py:311
+msgid "dupeGuru Results (*.dupeguru)"
+msgstr "Keputusan dupeGuru (*.dupeguru)"
+
+#: qt/directories_dialog.py:278
+msgid "Start a new scan"
+msgstr "Mulakan imbasan baharu"
+
+#: qt/directories_dialog.py:279 cocoa/en.lproj/Localizable.strings:0
+msgid "You have unsaved results, do you really want to continue?"
+msgstr ""
+"Anda mempunyai keputusan yang belum disimpan, adakah anda pasti anda ingin "
+"teruskan?"
+
+#: qt/directories_model.py:23 cocoa/en.lproj/Localizable.strings:0
+msgid "Name"
+msgstr "Nama"
+
+#: qt/directories_model.py:23 cocoa/en.lproj/Localizable.strings:0
+msgid "State"
+msgstr "Keadaan"
+
+#: qt/directories_model.py:24 cocoa/en.lproj/Localizable.strings:0
+msgid "Excluded"
+msgstr "Dikecualikan"
+
+#: qt/directories_model.py:24 cocoa/en.lproj/Localizable.strings:0
+msgid "Normal"
+msgstr "Biasa"
+
+#: qt/ignore_list_dialog.py:45 cocoa/en.lproj/Localizable.strings:0
+msgid "Remove Selected"
+msgstr "Alih Keluar yang Dipilih"
+
+#: qt/ignore_list_dialog.py:46 cocoa/en.lproj/Localizable.strings:0
+msgid "Clear"
+msgstr "Kosongkan"
+
+#: qt/ignore_list_dialog.py:47 qt/problem_dialog.py:61
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Close"
+msgstr "Tutup"
+
+#: qt/me/details_dialog.py:18 qt/pe/details_dialog.py:24
+#: qt/result_window.py:56 qt/result_window.py:192 qt/se/details_dialog.py:18
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Details"
+msgstr "Maklumat"
+
+#: qt/me/preferences_dialog.py:30 cocoa/en.lproj/Localizable.strings:0
+msgid "Tags to scan:"
+msgstr "Tag untuk diimbas:"
+
+#: qt/me/preferences_dialog.py:36 cocoa/en.lproj/Localizable.strings:0
+msgid "Track"
+msgstr "Runut"
+
+#: qt/me/preferences_dialog.py:38 cocoa/en.lproj/Localizable.strings:0
+msgid "Artist"
+msgstr "Artis"
+
+#: qt/me/preferences_dialog.py:40 cocoa/en.lproj/Localizable.strings:0
+msgid "Album"
+msgstr "Album"
+
+#: qt/me/preferences_dialog.py:42 cocoa/en.lproj/Localizable.strings:0
+msgid "Title"
+msgstr "Tajuk"
+
+#: qt/me/preferences_dialog.py:44 cocoa/en.lproj/Localizable.strings:0
+msgid "Genre"
+msgstr "Genre"
+
+#: qt/me/preferences_dialog.py:46 cocoa/en.lproj/Localizable.strings:0
+msgid "Year"
+msgstr "Tahun"
+
+#: qt/me/preferences_dialog.py:50 qt/se/preferences_dialog.py:30
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Word weighting"
+msgstr "Pemberatan perkataan"
+
+#: qt/me/preferences_dialog.py:52 qt/se/preferences_dialog.py:32
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Match similar words"
+msgstr "Padan perkataan serupa"
+
+#: qt/me/preferences_dialog.py:54 qt/pe/preferences_dialog.py:21
+#: qt/se/preferences_dialog.py:34 cocoa/en.lproj/Localizable.strings:0
+msgid "Can mix file kind"
+msgstr "Boleh campur jenis fail"
+
+#: qt/me/preferences_dialog.py:56 qt/pe/preferences_dialog.py:23
+#: qt/se/preferences_dialog.py:36 cocoa/en.lproj/Localizable.strings:0
+msgid "Use regular expressions when filtering"
+msgstr "Guna ungkapan nalar ketika menapis"
+
+#: qt/me/preferences_dialog.py:58 qt/pe/preferences_dialog.py:25
+#: qt/se/preferences_dialog.py:38 cocoa/en.lproj/Localizable.strings:0
+msgid "Remove empty folders on delete or move"
+msgstr "Alih keluar folder kosong semasa pemadaman atau pemindahan"
+
+#: qt/me/preferences_dialog.py:60 qt/pe/preferences_dialog.py:27
+#: qt/se/preferences_dialog.py:59 cocoa/en.lproj/Localizable.strings:0
+msgid "Ignore duplicates hardlinking to the same file"
+msgstr "Abaikan duplikasi yang paut keras ke fail yang sama"
+
+#: qt/me/preferences_dialog.py:62 qt/pe/preferences_dialog.py:29
+#: qt/se/preferences_dialog.py:62 cocoa/en.lproj/Localizable.strings:0
+msgid "Debug mode (restart required)"
+msgstr "Mod nyahpepijat (perlu mula semula)"
+
+#: qt/pe/preferences_dialog.py:19 cocoa/en.lproj/Localizable.strings:0
+msgid "Match pictures of different dimensions"
+msgstr "Padan gambar dengan dimensi berlainan"
+
+#: qt/preferences_dialog.py:43
+msgid "Filter Hardness:"
+msgstr "Kekuatan Penapis:"
+
+#: qt/preferences_dialog.py:69
+msgid "More Results"
+msgstr "Lebihkan Keputusan"
+
+#: qt/preferences_dialog.py:74
+msgid "Fewer Results"
+msgstr "Kurang Keputusan"
+
+#: qt/preferences_dialog.py:81
+msgid "Font size:"
+msgstr "Saiz fon:"
+
+#: qt/preferences_dialog.py:85
+msgid "Language:"
+msgstr "Bahasa:"
+
+#: qt/preferences_dialog.py:91 cocoa/en.lproj/Localizable.strings:0
+msgid "Copy and Move:"
+msgstr "Salin dan Pindah:"
+
+#: qt/preferences_dialog.py:94 cocoa/en.lproj/Localizable.strings:0
+msgid "Right in destination"
+msgstr "Dalam tempat tujuan"
+
+#: qt/preferences_dialog.py:95 cocoa/en.lproj/Localizable.strings:0
+msgid "Recreate relative path"
+msgstr "Cipta semula laluan relatif"
+
+#: qt/preferences_dialog.py:96 cocoa/en.lproj/Localizable.strings:0
+msgid "Recreate absolute path"
+msgstr "Cipta semula laluan mutlak"
+
+#: qt/preferences_dialog.py:99
+msgid "Custom Command (arguments: %d for dupe, %r for ref):"
+msgstr "Perintah Tersuai (argumen: %d untuk duplikasi, %r untuk rujukan):"
+
+#: qt/preferences_dialog.py:174
+msgid "dupeGuru has to restart for language changes to take effect."
+msgstr "dupeGuru perlu mula semula untuk menerima kesan perubahan bahasa."
+
+#: qt/prioritize_dialog.py:75 cocoa/en.lproj/Localizable.strings:0
+msgid "Re-Prioritize duplicates"
+msgstr "Pengutamaan semula duplikasi"
+
+#: qt/prioritize_dialog.py:79 cocoa/en.lproj/Localizable.strings:0
+msgid ""
+"Add criteria to the right box and click OK to send the dupes that correspond"
+" the best to these criteria to their respective group's reference position. "
+"Read the help file for more information."
+msgstr ""
+"Tambah kriteria di kotak kanan dan klik OK untuk hantar duplikasi yang "
+"paling sepadan dengan kriteria tersebut ke kedudukan rujukan kumpulan "
+"masing-masing. Baca fail bantuan untuk maklumat lanjut."
+
+#: qt/problem_dialog.py:33 cocoa/en.lproj/Localizable.strings:0
+msgid "Problems!"
+msgstr "Masalah!"
+
+#: qt/problem_dialog.py:37 cocoa/en.lproj/Localizable.strings:0
+msgid ""
+"There were problems processing some (or all) of the files. The cause of "
+"these problems are described in the table below. Those files were not "
+"removed from your results."
+msgstr ""
+"Terdapat masalah semasa memproses sesetengah (atau kesemua) fail. Penyebab "
+"masalah ini diterangkan dalam jadual di bawah. Fail tersebut tidak dialih "
+"keluar dari keputusan anda."
+
+#: qt/problem_dialog.py:56
+msgid "Reveal Selected"
+msgstr "Dedahkan yang Dipilih"
+
+#: qt/result_window.py:57 qt/result_window.py:104 qt/result_window.py:167
+#: qt/result_window.py:191 cocoa/en.lproj/Localizable.strings:0
+msgid "Actions"
+msgstr "Tindakan"
+
+#: qt/result_window.py:58 cocoa/en.lproj/Localizable.strings:0
+msgid "Show Dupes Only"
+msgstr "Tunjuk Duplikasi Sahaja"
+
+#: qt/result_window.py:59 cocoa/en.lproj/Localizable.strings:0
+msgid "Show Delta Values"
+msgstr "Tunjuk Nilai Delta"
+
+#: qt/result_window.py:60
+msgid "Send Marked to Recycle Bin..."
+msgstr "Hantar yang Ditandai ke Tong Sampah..."
+
+#: qt/result_window.py:61 cocoa/en.lproj/Localizable.strings:0
+msgid "Move Marked to..."
+msgstr "Pindah yang Ditandai ke..."
+
+#: qt/result_window.py:62 cocoa/en.lproj/Localizable.strings:0
+msgid "Copy Marked to..."
+msgstr "Salin yang Ditandai ke..."
+
+#: qt/result_window.py:63 cocoa/en.lproj/Localizable.strings:0
+msgid "Remove Marked from Results"
+msgstr "Alih Keluar yang Ditandai dari Keputusan"
+
+#: qt/result_window.py:64 cocoa/en.lproj/Localizable.strings:0
+msgid "Re-Prioritize Results..."
+msgstr "Pengutamaan Semula Keputusan..."
+
+#: qt/result_window.py:67 cocoa/en.lproj/Localizable.strings:0
+msgid "Remove Selected from Results"
+msgstr "Alih Keluar yang Dipilih dari Keputusan"
+
+#: qt/result_window.py:71 cocoa/en.lproj/Localizable.strings:0
+msgid "Add Selected to Ignore List"
+msgstr "Tambah yang Dipilih ke Senarai Abai"
+
+#: qt/result_window.py:75 cocoa/en.lproj/Localizable.strings:0
+msgid "Make Selected into Reference"
+msgstr "Jadikan yang Dipilih menjadi Rujukan"
+
+#: qt/result_window.py:77 cocoa/en.lproj/Localizable.strings:0
+msgid "Open Selected with Default Application"
+msgstr "Buka yang Dipilih dengan Aplikasi Lalai"
+
+#: qt/result_window.py:80
+msgid "Open Containing Folder of Selected"
+msgstr "Buka Folder yang Mengandungi yang Dipilih"
+
+#: qt/result_window.py:82 cocoa/en.lproj/Localizable.strings:0
+msgid "Rename Selected"
+msgstr "Namakan Semula yang Dipilih"
+
+#: qt/result_window.py:83 cocoa/en.lproj/Localizable.strings:0
+msgid "Mark All"
+msgstr "Tanda Semua"
+
+#: qt/result_window.py:84 cocoa/en.lproj/Localizable.strings:0
+msgid "Mark None"
+msgstr "Tanda Kosong"
+
+#: qt/result_window.py:85 cocoa/en.lproj/Localizable.strings:0
+msgid "Invert Marking"
+msgstr "Terbalikkan Penandaan"
+
+#: qt/result_window.py:86 cocoa/en.lproj/Localizable.strings:0
+msgid "Mark Selected"
+msgstr "Tanda yang Dipilih"
+
+#: qt/result_window.py:87
+msgid "Export To HTML"
+msgstr "Eksport ke HTML"
+
+#: qt/result_window.py:88
+msgid "Export To CSV"
+msgstr "Eksport ke CSV"
+
+#: qt/result_window.py:89 cocoa/en.lproj/Localizable.strings:0
+msgid "Save Results..."
+msgstr "Simpan Keputusan..."
+
+#: qt/result_window.py:90 cocoa/en.lproj/Localizable.strings:0
+msgid "Invoke Custom Command"
+msgstr "Guna Perintah Tersuai"
+
+#: qt/result_window.py:102
+msgid "Mark"
+msgstr "Tanda"
+
+#: qt/result_window.py:106 cocoa/en.lproj/Localizable.strings:0
+msgid "Columns"
+msgstr "Lajur"
+
+#: qt/result_window.py:163
+msgid "Reset to Defaults"
+msgstr "Tetap Semula ke Lalai"
+
+#: qt/result_window.py:185
+msgid "{} Results"
+msgstr "{} Keputusan"
+
+#: qt/result_window.py:193 cocoa/en.lproj/Localizable.strings:0
+msgid "Dupes Only"
+msgstr "Duplikasi Sahaja"
+
+#: qt/result_window.py:194
+msgid "Delta Values"
+msgstr "Nilai Delta"
+
+#: qt/result_window.py:310 cocoa/en.lproj/Localizable.strings:0
+msgid "Select a file to save your results to"
+msgstr "Pilih fail untuk simpan keputusan anda"
+
+#: qt/se/preferences_dialog.py:41
+msgid "Ignore files smaller than"
+msgstr "Abaikan fail lebih kecil dari"
+
+#: qt/se/preferences_dialog.py:52 cocoa/en.lproj/Localizable.strings:0
+msgid "KB"
+msgstr "KB"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "%@ Results"
+msgstr "%@ Keputusan"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Action"
+msgstr "Tindakan"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Add New Folder..."
+msgstr "Tambah Folder Baharu..."
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Advanced"
+msgstr "Lanjutan"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Automatically check for updates"
+msgstr "Periksa kemas kini secara automatik"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Basic"
+msgstr "Asas"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Bring All to Front"
+msgstr "Bawa Semua ke Hadapan"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Check for update..."
+msgstr "Periksa kemas kini..."
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Close Window"
+msgstr "Tutup Tetingkap"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Copy"
+msgstr "Salin"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Custom command (arguments: %d for dupe, %r for ref):"
+msgstr "Perintah tersuai (argumen: %d untuk duplikasi, %r untuk rujukan):"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Cut"
+msgstr "Potong"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Delta"
+msgstr "Delta"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Details of Selected File"
+msgstr "Maklumat Fail yang Dipilih"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Details Panel"
+msgstr "Panel Maklumat"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Directories"
+msgstr "Direktori"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "dupeGuru"
+msgstr "dupeGuru"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "dupeGuru Preferences"
+msgstr "Keutamaan dupeGuru"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "dupeGuru Results"
+msgstr "Keputusan dupeGuru"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "dupeGuru Website"
+msgstr "Laman Sesawang dupeGuru"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Edit"
+msgstr "Sunting"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Export Results to CSV"
+msgstr "Eksport Keputusan ke CSV"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Export Results to XHTML"
+msgstr "Eksport Keputusan ke XHTML"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Fewer results"
+msgstr "Kurangkan keputusan"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Filter"
+msgstr "Penapis"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Filter hardness:"
+msgstr "Kekuatan penapisan:"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Filter Results..."
+msgstr "Tapis Keputusan..."
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Folder Selection Window"
+msgstr "Tetingkap Pemilihan Folder"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Font Size:"
+msgstr "Saiz Fon:"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Hide dupeGuru"
+msgstr "Sembunyikan dupeGuru"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Hide Others"
+msgstr "Sembunyikan yang Lain"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Ignore files smaller than:"
+msgstr "Abaikan fail lebih kecil dari:"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Load from file..."
+msgstr "Muatkan dari fail..."
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Minimize"
+msgstr "Meminimumkan"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Mode"
+msgstr "Mod"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "More results"
+msgstr "Lebihkan keputusan"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Ok"
+msgstr "Ok"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Paste"
+msgstr "Tampal"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Preferences..."
+msgstr "Keutamaan..."
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Quick Look"
+msgstr "Lihat Segera"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Quit dupeGuru"
+msgstr "Keluar dupeGuru"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Reset to Default"
+msgstr "Tetap Semula ke Lalai"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Reset To Defaults"
+msgstr "Tetap Semula ke Lalai"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Reveal"
+msgstr "Dedah"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Reveal Selected in Finder"
+msgstr "Dedah yang Dipilih dalam Pencari"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Select All"
+msgstr "Pilih Semua"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Send Marked to Trash..."
+msgstr "Hantar yang Ditandai ke Tong Sampah..."
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Services"
+msgstr "Perkhidmatan"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Show All"
+msgstr "Tunjuk Semua"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Start Duplicate Scan"
+msgstr "Mulakan Imbasan Duplikasi"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "The name '%@' already exists."
+msgstr "Nama '%@' sudah wujud."
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Window"
+msgstr "Tetingkap"
+
+#: cocoa/en.lproj/Localizable.strings:0
+msgid "Zoom"
+msgstr "Zum"
+
+#: qt\app.py:158
+msgid "Exclusion Filters"
+msgstr "Penapis Pengecualian"
+
+#: qt\directories_dialog.py:91
+msgid "Scan Results"
+msgstr "Keputusan Imbasan"
+
+#: qt\directories_dialog.py:95
+msgid "Load Directories..."
+msgstr "Muatkan Direktori..."
+
+#: qt\directories_dialog.py:96
+msgid "Save Directories..."
+msgstr "Simpan Direktori..."
+
+#: qt\directories_dialog.py:337
+msgid "Select a directories file to load"
+msgstr "Pilih fail direktori untuk dimuatkan"
+
+#: qt\directories_dialog.py:338
+msgid "dupeGuru Results (*.dupegurudirs)"
+msgstr "Keputusan dupeGuru (*.dupegurudirs)"
+
+#: qt\directories_dialog.py:347
+msgid "Select a file to save your directories to"
+msgstr "Pilih fail untuk simpan direktori anda"
+
+#: qt\directories_dialog.py:348
+msgid "dupeGuru Directories (*.dupegurudirs)"
+msgstr "Direktori dupeGuru (*.dupegurudirs)"
+
+#: qt\exclude_list_dialog.py:44
+msgid "Add"
+msgstr "Tambah"
+
+#: qt\exclude_list_dialog.py:46
+msgid "Restore defaults"
+msgstr "Tetap semula lalai"
+
+#: qt\exclude_list_dialog.py:47
+msgid "Test string"
+msgstr "Cuba rentetan"
+
+#: qt\exclude_list_dialog.py:83
+msgid "Type a python regular expression here..."
+msgstr "Taipkan ungkapan nalar python di sini..."
+
+#: qt\exclude_list_dialog.py:85
+msgid "Type a file system path or filename here..."
+msgstr "Taipkan laluan sistem fail atau nama fail di sini..."
+
+#: qt\exclude_list_dialog.py:152
+msgid ""
+"These (case sensitive) python regular expressions will filter out files during scans.<br>Directores will also have their <strong>default state</strong> set to Excluded in the Directories tab if their name happen to match one of the regular expressions.<br>For each file collected two tests are perfomed on each of them to determine whether or not to filter them out:<br><li>1. Regular expressions with no path separator in them will be compared to the file name only.</li>\n"
+"<li>2. Regular expressions with no path separator in them will be compared to the full path to the file.</li><br>\n"
+"Example: if you want to filter out .PNG files from the \"My Pictures\" directory only:<br><code>.*My\\sPictures\\\\.*\\.png</code><br><br>You can test the regular expression with the test string feature by pasting a fake path in it:<br><code>C:\\\\User\\My Pictures\\test.png</code><br><br>\n"
+"Matching regular expressions will be highlighted.<br>If there is at least one highlight, the path tested will be ignored during scans.<br><br>Directories and files starting with a period '.' are filtered out by default.<br><br>"
+msgstr ""
+"Ungkapan nalar python (sensitif huruf) ini akan menapis keluar fail ketika imbasan.<br>Direktori juga akan ada <strong>keadaan lalai</strong>sendiri ditetapkan kepada  Dikecualikan dalam tab Direktori jika nama tersebut sepadan dengan salah satu ungkapan nalar.<br>Untuk setiap fail yang terhimpun, dua percubaan akan dilaksanakan bagi setiap satu fail tersebut untuk menentukan sama ada fail tersebut perlu ditapis keluar:<br><li>1. Ungkapan nalar tanpa pemisah laluan di dalamnya akan dibandingkan dengan nama fail sahaja.</li>\n"
+"<li>2. Ungkapan nalar tanpa pemisah laluan di dalamnya akan dibandingkan dengan laluan penuh ke fail.</li><br>\n"
+"Contoh: jika anda ingin tapis keluar fail .PNG dari direktori \"My Pictures\" sahaja:<br><code>.*My\\sPictures\\\\.*\\.png</code><br><br>Anda boleh cuba ungkapan nalar dengan fungsi cuba rentetan dengan menampal laluan palsu di dalamnya:<br><code>C:\\\\User\\My Pictures\\test.png</code><br><br>\n"
+"Ungkapan nalar yang terpadan akan ditonjolkan.<br>Sekiranya ada sekurang-kurangnya satu tonjolan, laluan yang dicuba akan diabaikan ketika imbasan.<br><br>Direktori dan fail yang bermula dengan tanda titik '.' ditapis keluar secara lalainya.<br><br>"
+
+#: qt\exclude_list_table.py:36
+msgid "Compilation error: "
+msgstr "Ralat pengkompilan:"
+
+#: qt\pe\image_viewer.py:56
+msgid "Increase zoom"
+msgstr "Naikkan zum"
+
+#: qt\pe\image_viewer.py:66
+msgid "Decrease zoom"
+msgstr "Turunkan zum"
+
+#: qt\pe\image_viewer.py:71
+msgid "Ctrl+/"
+msgstr "Ctrl+/"
+
+#: qt\pe\image_viewer.py:76
+msgid "Normal size"
+msgstr "Saiz biasa"
+
+#: qt\pe\image_viewer.py:81
+msgid "Ctrl+*"
+msgstr "Ctrl+*"
+
+#: qt\pe\image_viewer.py:86
+msgid "Best fit"
+msgstr "Suaian terbaik"
+
+#: qt\pe\preferences_dialog.py:49
+msgid "Picture cache mode:"
+msgstr "Mod cache gambar:"
+
+#: qt\pe\preferences_dialog.py:56
+msgid "Override theme icons in viewer toolbar"
+msgstr "Mengataskan ikon tema dalam bar alat pemidang"
+
+#: qt\pe\preferences_dialog.py:58
+msgid ""
+"Use our own internal icons instead of those provided by the theme engine"
+msgstr ""
+"Guna ikon dalaman kami sendiri menggantikan apa yang disediakan oleh enjin "
+"tema"
+
+#: qt\pe\preferences_dialog.py:66
+msgid "Show scrollbars in image viewers"
+msgstr "Tunjuk bar tatal dalam pemidang imej"
+
+#: qt\pe\preferences_dialog.py:68
+msgid ""
+"When the image displayed doesn't fit the viewport, show scrollbars to span "
+"the view around"
+msgstr ""
+"Apabila imej yang dipaparkan tidak muat dalam port pandang, tunjuk bar tatal"
+" untuk menggerakkan pemidang"
+
+#: qt\preferences_dialog.py:156
+msgid "Use default position for tab bar (requires restart)"
+msgstr "Guna kedudukan lalai untuk bar tab (perlu mula semula)"
+
+#: qt\preferences_dialog.py:158
+msgid ""
+"Place the tab bar below the main menu instead of next to it\n"
+"On MacOS, the tab bar will fill up the window's width instead."
+msgstr ""
+"Letak bar tab di bawah menu utama dan bukannya di sebelahnya\n"
+"Di MacOS, bar tab akan mengisi lebar tetingkap."
+
+#: qt\preferences_dialog.py:172
+msgid "Use bold font for references"
+msgstr "Guna fon tebal untuk rujukan"
+
+#: qt\preferences_dialog.py:176
+msgid "Reference foreground color:"
+msgstr "Warna latar depan rujukan:"
+
+#: qt\preferences_dialog.py:179
+msgid "Reference background color:"
+msgstr "Warna latar belakang rujukan:"
+
+#: qt\preferences_dialog.py:182 qt\preferences_dialog.py:216
+msgid "Delta foreground color:"
+msgstr "Warna latar depan delta:"
+
+#: qt\preferences_dialog.py:195
+msgid "Show the title bar and can be docked"
+msgstr "Tunjuk bar tajuk dan boleh dilimbungkan"
+
+#: qt\preferences_dialog.py:197
+msgid ""
+"While the title bar is hidden, use the modifier key to drag the floating "
+"window around"
+msgstr ""
+"Apabila bar tajuk disembunyikan, guna kekunci pengubah suai untuk seret "
+"tetingkap terapung"
+
+#: qt\preferences_dialog.py:199
+msgid "The title bar can only be disabled while the window is docked"
+msgstr "Bar tajuk hanya boleh dilumpuhkan ketika tetingkap dilimbungkan"
+
+#: qt\preferences_dialog.py:202
+msgid "Vertical title bar"
+msgstr "Bar tajuk menegak"
+
+#: qt\preferences_dialog.py:204
+msgid ""
+"Change the title bar from horizontal on top, to vertical on the left side"
+msgstr ""
+"Ubah bar tajuk daripada melintang di atas, kepada menegak di sisi kiri"
+
+#: qt\tabbed_window.py:44
+msgid "Show tab bar"
+msgstr "Tunjuk bar tab"
+
+#: qt\exclude_list_dialog.py:152
+msgid ""
+"These (case sensitive) python regular expressions will filter out files during scans.<br>Directores will also have their <strong>default state</strong> set to Excluded in the Directories tab if their name happens to match one of the selected regular expressions.<br>For each file collected, two tests are performed to determine whether or not to completely ignore it:<br><li>1. Regular expressions with no path separator in them will be compared to the file name only.</li>\n"
+"<li>2. Regular expressions with at least one path separator in them will be compared to the full path to the file.</li><br>\n"
+"Example: if you want to filter out .PNG files from the \"My Pictures\" directory only:<br><code>.*My\\sPictures\\\\.*\\.png</code><br><br>You can test the regular expression with the \"test string\" button after pasting a fake path in the test field:<br><code>C:\\\\User\\My Pictures\\test.png</code><br><br>\n"
+"Matching regular expressions will be highlighted.<br>If there is at least one highlight, the path or filename tested will be ignored during scans.<br><br>Directories and files starting with a period '.' are filtered out by default.<br><br>"
+msgstr ""
+"Ungkapan nalar python (sensitif huruf) ini akan menapis keluar fail ketika imbasan.<br>Direktori juga akan ada <strong>keadaan lalai</strong> sendiri ditetapkan kepada Dikecualikan dalam tab Direktori jika nama tersebut sepadan dengan salah satu daripada ungkapan nalar yang dipilih.<br>Untuk setiap fail yang terhimpun, dua percubaan akan dilaksanakan untuk menentukan sama ada fail tersebut perlu diabaikan sepenuhnya:<br><li>1. Ungkapan nalar tanpa pemisah laluan di dalamnya akan dibandingkan dengan nama fail sahaja.</li>\n"
+"<li>2. Ungkapan nalar dengan sekurang-kurangnya satu pemisah laluan di dalamnya akan dibandingkan dengan laluan penuh ke fail.</li><br>\n"
+"Contoh: jika anda ingin tapis keluar fail .PNG dari direktori \"My Pictures\" sahaja:<br><code>.*My\\sPictures\\\\.*\\.png</code><br><br>Anda boleh cuba ungkapan nalar dengan butang \"cuba rentetan\" selepas menampal laluan palsi dalam medan percubaan:<br><code>C:\\\\User\\My Pictures\\test.png</code><br><br>\n"
+"Ungkapan nalar yang terpadan akan ditonjolkan.<br>Sekiranya ada sekurang-kurangnya satu tonjolan, laluan atau nama fail yang dicuba akan diabaikan ketika imbasan.<br><br>Direktori dan fail yang bermula dengan tanda titik '.' ditapis keluar secara lalainya.<br><br>"
+
+#: qt\app.py:256
+msgid "Results"
+msgstr "Keputusan"
+
+#: qt\preferences_dialog.py:150
+msgid "General Interface"
+msgstr "Antara Muka Am"
+
+#: qt\preferences_dialog.py:176
+msgid "Result Table"
+msgstr "Jadual Keputusan"
+
+#: qt\preferences_dialog.py:205
+msgid "Details Window"
+msgstr "Tetingkap Maklumat"
+
+#: qt\preferences_dialog.py:285
+msgid "General"
+msgstr "Am"
+
+#: qt\preferences_dialog.py:286
+msgid "Display"
+msgstr "Paparan"
+
+#: qt\se\preferences_dialog.py:70
+msgid "Partially hash files bigger than"
+msgstr "Fail cincang separa lebih besar dari"
+
+#: qt\se\preferences_dialog.py:80
+msgid "MB"
+msgstr "MB"
+
+#: qt\preferences_dialog.py:163
+msgid "Use native OS dialogs"
+msgstr "Guna dialog OS natif"
+
+#: qt\preferences_dialog.py:166
+msgid ""
+"For actions such as file/folder selection use the OS native dialogs.\n"
+"Some native dialogs have limited functionality."
+msgstr ""
+"Gunakan dialog natif OS untuk tindakan seperti pemilihan fail/folder.\n"
+"Sesetengah dialog natif mempunyai kefungsian yang terhad."
+
+#: qt\se\preferences_dialog.py:68
+msgid "Ignore files larger than"
+msgstr "Abaikan fail lebih besar dari"
+
+#: qt\app.py:135 qt\app.py:293
+msgid "Clear Cache"
+msgstr "Kosongkan Cache"
+
+#: qt\app.py:294
+msgid ""
+"Do you really want to clear the cache? This will remove all cached file "
+"hashes and picture analysis."
+msgstr ""
+"Adakah anda pasti anda ingin kosongkan cache? Ini akan alih keluar semua "
+"cincang fail dan analisis gambar yang tercache."
+
+#: qt\app.py:299
+msgid "Cache cleared."
+msgstr "Cache dikosongkan."
+
+#: qt\preferences_dialog.py:173
+msgid "Use dark style"
+msgstr "Guna gaya gelap"

@@ -25,7 +25,7 @@ from PyQt5.QtWidgets import (
 
 from hscommon.trans import trget
 from qtlib.selectable_list import ComboboxModel, ListviewModel
-from qtlib.util import verticalSpacer
+from qtlib.util import vertical_spacer
 from core.gui.prioritize_dialog import PrioritizeDialog as PrioritizeDialogModel
 
 tr = trget("ui")
@@ -40,12 +40,12 @@ class PrioritizationList(ListviewModel):
         return Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemIsDragEnabled
 
     # --- Drag & Drop
-    def dropMimeData(self, mimeData, action, row, column, parentIndex):
-        if not mimeData.hasFormat(MIME_INDEXES):
+    def dropMimeData(self, mime_data, action, row, column, parent_index):
+        if not mime_data.hasFormat(MIME_INDEXES):
             return False
         # Since we only drop in between items, parentIndex must be invalid, and we use the row arg
         # to know where the drop took place.
-        if parentIndex.isValid():
+        if parent_index.isValid():
             return False
         # "When row and column are -1 it means that the dropped data should be considered as
         # dropped directly on parent."
@@ -53,8 +53,8 @@ class PrioritizationList(ListviewModel):
         # dragged items after the last item.
         if row < 0:
             row = len(self.model) - 1
-        strMimeData = bytes(mimeData.data(MIME_INDEXES)).decode()
-        indexes = list(map(int, strMimeData.split(",")))
+        str_mime_data = bytes(mime_data.data(MIME_INDEXES)).decode()
+        indexes = list(map(int, str_mime_data.split(",")))
         self.model.move_indexes(indexes, row)
         self.view.selectionModel().clearSelection()
         return True
@@ -62,9 +62,9 @@ class PrioritizationList(ListviewModel):
     def mimeData(self, indexes):
         rows = {str(index.row()) for index in indexes}
         data = ",".join(rows)
-        mimeData = QMimeData()
-        mimeData.setData(MIME_INDEXES, QByteArray(data.encode()))
-        return mimeData
+        mime_data = QMimeData()
+        mime_data.setData(MIME_INDEXES, QByteArray(data.encode()))
+        return mime_data
 
     def mimeTypes(self):
         return [MIME_INDEXES]
@@ -79,12 +79,8 @@ class PrioritizeDialog(QDialog):
         super().__init__(parent, flags, **kwargs)
         self._setupUi()
         self.model = PrioritizeDialogModel(app=app.model)
-        self.categoryList = ComboboxModel(
-            model=self.model.category_list, view=self.categoryCombobox
-        )
-        self.criteriaList = ListviewModel(
-            model=self.model.criteria_list, view=self.criteriaListView
-        )
+        self.categoryList = ComboboxModel(model=self.model.category_list, view=self.categoryCombobox)
+        self.criteriaList = ListviewModel(model=self.model.criteria_list, view=self.criteriaListView)
         self.prioritizationList = PrioritizationList(
             model=self.model.prioritization_list, view=self.prioritizationListView
         )
@@ -112,12 +108,8 @@ class PrioritizeDialog(QDialog):
         self.categoryCombobox = QComboBox()
         self.criteriaListView = QListView()
         self.criteriaListView.setSelectionMode(QAbstractItemView.ExtendedSelection)
-        self.addCriteriaButton = QPushButton(
-            self.style().standardIcon(QStyle.SP_ArrowRight), ""
-        )
-        self.removeCriteriaButton = QPushButton(
-            self.style().standardIcon(QStyle.SP_ArrowLeft), ""
-        )
+        self.addCriteriaButton = QPushButton(self.style().standardIcon(QStyle.SP_ArrowRight), "")
+        self.removeCriteriaButton = QPushButton(self.style().standardIcon(QStyle.SP_ArrowLeft), "")
         self.prioritizationListView = QListView()
         self.prioritizationListView.setAcceptDrops(True)
         self.prioritizationListView.setDragEnabled(True)
@@ -143,10 +135,10 @@ class PrioritizeDialog(QDialog):
         self.rightSide = QWidget()
         self.rightWidgetsLayout = QHBoxLayout()
         self.addRemoveButtonsLayout = QVBoxLayout()
-        self.addRemoveButtonsLayout.addItem(verticalSpacer())
+        self.addRemoveButtonsLayout.addItem(vertical_spacer())
         self.addRemoveButtonsLayout.addWidget(self.addCriteriaButton)
         self.addRemoveButtonsLayout.addWidget(self.removeCriteriaButton)
-        self.addRemoveButtonsLayout.addItem(verticalSpacer())
+        self.addRemoveButtonsLayout.addItem(vertical_spacer())
         self.rightWidgetsLayout.addLayout(self.addRemoveButtonsLayout)
         self.rightWidgetsLayout.addWidget(self.prioritizationListView)
         self.rightSide.setLayout(self.rightWidgetsLayout)

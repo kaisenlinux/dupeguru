@@ -17,17 +17,31 @@ from hscommon.util import flatten, multi_replace
 from hscommon.trans import tr
 from hscommon.jobprogress import job
 
-(WEIGHT_WORDS, MATCH_SIMILAR_WORDS, NO_FIELD_ORDER,) = range(3)
+(
+    WEIGHT_WORDS,
+    MATCH_SIMILAR_WORDS,
+    NO_FIELD_ORDER,
+) = range(3)
 
 JOB_REFRESH_RATE = 100
+PROGRESS_MESSAGE = tr("%d matches found from %d groups")
 
 
 def getwords(s):
     # We decompose the string so that ascii letters with accents can be part of the word.
     s = normalize("NFD", s)
     s = multi_replace(s, "-_&+():;\\[]{}.,<>/?~!@#$*", " ").lower()
+    # logging.debug(f"DEBUG chars for: {s}\n"
+    #               f"{[c for c in s if ord(c) != 32]}\n"
+    #               f"{[ord(c) for c in s if ord(c) != 32]}")
+    # HACK We shouldn't ignore non-ascii characters altogether. Any Unicode char
+    # above common european characters that cannot be "sanitized" (ie. stripped
+    # of their accents, etc.) are preserved as is. The arbitrary limit is
+    # obtained from this one: ord("\u037e") GREEK QUESTION MARK
     s = "".join(
-        c for c in s if c in string.ascii_letters + string.digits + string.whitespace
+        c
+        for c in s
+        if (ord(c) <= 894 and c in string.ascii_letters + string.digits + string.whitespace) or ord(c) > 894
     )
     return [_f for _f in s.split(" ") if _f]  # remove empty elements
 
@@ -93,20 +107,18 @@ def compare_fields(first, second, flags=()):
         # We don't want to remove field directly in the list. We must work on a copy.
         second = second[:]
         for field1 in first:
-            max = 0
+            max_score = 0
             matched_field = None
             for field2 in second:
                 r = compare(field1, field2, flags)
-                if r > max:
-                    max = r
+                if r > max_score:
+                    max_score = r
                     matched_field = field2
-            results.append(max)
+            results.append(max_score)
             if matched_field:
                 second.remove(matched_field)
     else:
-        results = [
-            compare(field1, field2, flags) for field1, field2 in zip(first, second)
-        ]
+        results = [compare(field1, field2, flags) for field1, field2 in zip(first, second)]
     return min(results) if results else 0
 
 
@@ -119,9 +131,7 @@ def build_word_dict(objects, j=job.nulljob):
     The result will be a dict with words as keys, lists of objects as values.
     """
     result = defaultdict(set)
-    for object in j.iter_with_progress(
-        objects, "Prepared %d/%d files", JOB_REFRESH_RATE
-    ):
+    for object in j.iter_with_progress(objects, "Prepared %d/%d files", JOB_REFRESH_RATE):
         for word in unpack_fields(object.words):
             result[word].add(object)
     return result
@@ -156,9 +166,7 @@ def reduce_common_words(word_dict, threshold):
     The exception to this removal are the objects where all the words of the object are common.
     Because if we remove them, we will miss some duplicates!
     """
-    uncommon_words = set(
-        word for word, objects in word_dict.items() if len(objects) < threshold
-    )
+    uncommon_words = set(word for word, objects in word_dict.items() if len(objects) < threshold)
     for word, objects in list(word_dict.items()):
         if len(objects) < threshold:
             continue
@@ -241,10 +249,11 @@ def getmatches(
         match_flags.append(MATCH_SIMILAR_WORDS)
     if no_field_order:
         match_flags.append(NO_FIELD_ORDER)
-    j.start_job(len(word_dict), tr("0 matches found"))
+    j.start_job(len(word_dict), PROGRESS_MESSAGE % (0, 0))
     compared = defaultdict(set)
     result = []
     try:
+        word_count = 0
         # This whole 'popping' thing is there to avoid taking too much memory at the same time.
         while word_dict:
             items = word_dict.popitem()[1]
@@ -259,41 +268,50 @@ def getmatches(
                         result.append(m)
                         if len(result) >= LIMIT:
                             return result
-            j.add_progress(desc=tr("%d matches found") % len(result))
+            word_count += 1
+            j.add_progress(desc=PROGRESS_MESSAGE % (len(result), word_count))
     except MemoryError:
         # This is the place where the memory usage is at its peak during the scan.
         # Just continue the process with an incomplete list of matches.
         del compared  # This should give us enough room to call logging.
-        logging.warning(
-            "Memory Overflow. Matches: %d. Word dict: %d"
-            % (len(result), len(word_dict))
-        )
+        logging.warning("Memory Overflow. Matches: %d. Word dict: %d" % (len(result), len(word_dict)))
         return result
     return result
 
 
-def getmatches_by_contents(files, j=job.nulljob):
+def getmatches_by_contents(files, bigsize=0, j=job.nulljob):
     """Returns a list of :class:`Match` within ``files`` if their contents is the same.
 
+    :param bigsize: The size in bytes over which we consider files big enough to
+                    justify taking samples of md5. If 0, compute md5 as usual.
     :param j: A :ref:`job progress instance <jobs>`.
     """
     size2files = defaultdict(set)
     for f in files:
-        if f.size:
-            size2files[f.size].add(f)
+        size2files[f.size].add(f)
     del files
     possible_matches = [files for files in size2files.values() if len(files) > 1]
     del size2files
     result = []
-    j.start_job(len(possible_matches), tr("0 matches found"))
+    j.start_job(len(possible_matches), PROGRESS_MESSAGE % (0, 0))
+    group_count = 0
     for group in possible_matches:
         for first, second in itertools.combinations(group, 2):
             if first.is_ref and second.is_ref:
                 continue  # Don't spend time comparing two ref pics together.
+            if first.size == 0 and second.size == 0:
+                # skip md5 for zero length files
+                result.append(Match(first, second, 100))
+                continue
             if first.md5partial == second.md5partial:
-                if first.md5 == second.md5:
-                    result.append(Match(first, second, 100))
-        j.add_progress(desc=tr("%d matches found") % len(result))
+                if bigsize > 0 and first.size > bigsize:
+                    if first.md5samples == second.md5samples:
+                        result.append(Match(first, second, 100))
+                else:
+                    if first.md5 == second.md5:
+                        result.append(Match(first, second, 100))
+        group_count += 1
+        j.add_progress(desc=PROGRESS_MESSAGE % (len(result), group_count))
     return result
 
 
@@ -391,18 +409,13 @@ class Group:
 
         You can call this after the duplicate scanning process to free a bit of memory.
         """
-        discarded = set(
-            m
-            for m in self.matches
-            if not all(obj in self.unordered for obj in [m.first, m.second])
-        )
+        discarded = set(m for m in self.matches if not all(obj in self.unordered for obj in [m.first, m.second]))
         self.matches -= discarded
         self.candidates = defaultdict(set)
         return discarded
 
     def get_match_of(self, item):
-        """Returns the match pair between ``item`` and :attr:`ref`.
-        """
+        """Returns the match pair between ``item`` and :attr:`ref`."""
         if item is self.ref:
             return
         for m in self._get_matches_for_ref():
@@ -418,8 +431,7 @@ class Group:
         """
         # tie_breaker(ref, dupe) --> True if dupe should be ref
         # Returns True if anything changed during prioritization.
-        master_key_func = lambda x: (-x.is_ref, key_func(x))
-        new_order = sorted(self.ordered, key=master_key_func)
+        new_order = sorted(self.ordered, key=lambda x: (-x.is_ref, key_func(x)))
         changed = new_order != self.ordered
         self.ordered = new_order
         if tie_breaker is None:
@@ -442,9 +454,7 @@ class Group:
             self.unordered.remove(item)
             self._percentage = None
             self._matches_for_ref = None
-            if (len(self) > 1) and any(
-                not getattr(item, "is_ref", False) for item in self
-            ):
+            if (len(self) > 1) and any(not getattr(item, "is_ref", False) for item in self):
                 if discard_matches:
                     self.matches = set(m for m in self.matches if item not in m)
             else:
@@ -453,8 +463,7 @@ class Group:
             pass
 
     def switch_ref(self, with_dupe):
-        """Make the :attr:`ref` dupe of the group switch position with ``with_dupe``.
-        """
+        """Make the :attr:`ref` dupe of the group switch position with ``with_dupe``."""
         if self.ref.is_ref:
             return False
         try:
@@ -473,9 +482,7 @@ class Group:
         if self._percentage is None:
             if self.dupes:
                 matches = self._get_matches_for_ref()
-                self._percentage = sum(match.percentage for match in matches) // len(
-                    matches
-                )
+                self._percentage = sum(match.percentage for match in matches) // len(matches)
             else:
                 self._percentage = 0
         return self._percentage
@@ -530,12 +537,8 @@ def get_groups(matches):
     orphan_matches = []
     for group in groups:
         orphan_matches += {
-            m
-            for m in group.discard_matches()
-            if not any(obj in matched_files for obj in [m.first, m.second])
+            m for m in group.discard_matches() if not any(obj in matched_files for obj in [m.first, m.second])
         }
     if groups and orphan_matches:
-        groups += get_groups(
-            orphan_matches
-        )  # no job, as it isn't supposed to take a long time
+        groups += get_groups(orphan_matches)  # no job, as it isn't supposed to take a long time
     return groups

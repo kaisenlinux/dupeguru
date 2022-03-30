@@ -8,15 +8,14 @@ from PyQt5.QtGui import QFont, QFontMetrics, QIcon, QColor
 from qtlib.column import Column
 from qtlib.table import Table
 from hscommon.trans import trget
+
 tr = trget("ui")
 
 
 class ExcludeListTable(Table):
     """Model for exclude list"""
-    COLUMNS = [
-        Column("marked", defaultWidth=15),
-        Column("regex", defaultWidth=230)
-    ]
+
+    COLUMNS = [Column("marked", default_width=15), Column("regex", default_width=230)]
 
     def __init__(self, app, view, **kwargs):
         model = app.model.exclude_list_dialog.exclude_list_table  # pointer to GUITable
@@ -26,7 +25,6 @@ class ExcludeListTable(Table):
         view.setFont(font)
         fm = QFontMetrics(font)
         view.verticalHeader().setDefaultSectionSize(fm.height() + 2)
-        # app.willSavePrefs.connect(self.appWillSavePrefs)
 
     def _getData(self, row, column, role):
         if column.name == "marked":
@@ -44,9 +42,8 @@ class ExcludeListTable(Table):
         elif role == Qt.BackgroundRole and column.name == "regex":
             if row.highlight:
                 return QColor(10, 200, 10)  # green
-        elif role == Qt.EditRole:
-            if column.name == "regex":
-                return row.data[column.name]
+        elif role == Qt.EditRole and column.name == "regex":
+            return row.data[column.name]
         return None
 
     def _getFlags(self, row, column):
@@ -63,15 +60,6 @@ class ExcludeListTable(Table):
             if column.name == "marked":
                 row.marked = bool(value)
                 return True
-        elif role == Qt.EditRole:
-            if column.name == "regex":
-                return self.model.rename_selected(value)
+        elif role == Qt.EditRole and column.name == "regex":
+            return self.model.rename_selected(value)
         return False
-
-    # def sort(self, column, order):
-    #     column = self.model.COLUMNS[column]
-    #     self.model.sort(column.name, order == Qt.AscendingOrder)
-
-    # # --- Events
-    # def appWillSavePrefs(self):
-    #     self.model.columns.save_columns()

@@ -2,7 +2,7 @@
 # which should be included with this package. The terms are also available at
 # http://www.gnu.org/licenses/gpl-3.0.html
 
-from PyQt5.QtCore import QRect, pyqtSlot, Qt
+from PyQt5.QtCore import QRect, pyqtSlot, Qt, QEvent
 from PyQt5.QtWidgets import (
     QWidget,
     QVBoxLayout,
@@ -14,11 +14,12 @@ from PyQt5.QtWidgets import (
     QStackedWidget,
 )
 from hscommon.trans import trget
-from qtlib.util import moveToScreenCenter, createActions
+from qtlib.util import move_to_screen_center, create_actions
 from .directories_dialog import DirectoriesDialog
 from .result_window import ResultWindow
 from .ignore_list_dialog import IgnoreListDialog
 from .exclude_list_dialog import ExcludeListDialog
+
 tr = trget("ui")
 
 
@@ -45,7 +46,7 @@ class TabWindow(QMainWindow):
                 self.toggleTabBar,
             ),
         ]
-        createActions(ACTIONS, self)
+        create_actions(ACTIONS, self)
         self.actionToggleTabs.setCheckable(True)
         self.actionToggleTabs.setChecked(True)
 
@@ -76,8 +77,8 @@ class TabWindow(QMainWindow):
     def restoreGeometry(self):
         if self.app.prefs.mainWindowRect is not None:
             self.setGeometry(self.app.prefs.mainWindowRect)
-        else:
-            moveToScreenCenter(self)
+        if self.app.prefs.mainWindowIsMaximized:
+            self.showMaximized()
 
     def _setupMenu(self):
         """Setup the menubar boiler plates which will be filled by the underlying
@@ -135,16 +136,15 @@ class TabWindow(QMainWindow):
                 action.setEnabled(True)
 
         self.app.directories_dialog.actionShowResultsWindow.setEnabled(
-            False if page_type == "ResultWindow"
-            else self.app.resultWindow is not None)
+            False if page_type == "ResultWindow" else self.app.resultWindow is not None
+        )
         self.app.actionIgnoreList.setEnabled(
-            True if self.app.ignoreListDialog is not None
-            and not page_type == "IgnoreListDialog" else False)
-        self.app.actionDirectoriesWindow.setEnabled(
-            False if page_type == "DirectoriesDialog" else True)
+            True if self.app.ignoreListDialog is not None and not page_type == "IgnoreListDialog" else False
+        )
+        self.app.actionDirectoriesWindow.setEnabled(False if page_type == "DirectoriesDialog" else True)
         self.app.actionExcludeList.setEnabled(
-            True if self.app.excludeListDialog is not None
-            and not page_type == "ExcludeListDialog" else False)
+            True if self.app.excludeListDialog is not None and not page_type == "ExcludeListDialog" else False
+        )
 
         self.previous_widget_actions = active_widget.specific_actions
         self.last_index = current_index
@@ -174,10 +174,8 @@ class TabWindow(QMainWindow):
     def addTab(self, page, title, switch=False):
         # Warning: this supposedly takes ownership of the page
         index = self.tabWidget.addTab(page, title)
-        # index = self.tabWidget.insertTab(-1, page, title)
         if isinstance(page, DirectoriesDialog):
-            self.tabWidget.tabBar().setTabButton(
-                index, QTabBar.RightSide, None)
+            self.tabWidget.tabBar().setTabButton(index, QTabBar.RightSide, None)
         if switch:
             self.setCurrentIndex(index)
         return index
@@ -213,7 +211,19 @@ class TabWindow(QMainWindow):
         # QTabWidget will assign its geometry after restoring it
         prefs = self.app.prefs
         prefs.mainWindowIsMaximized = self.isMaximized()
-        prefs.mainWindowRect = self.geometry()
+        if not self.isMaximized():
+            prefs.mainWindowRect = self.geometry()
+
+    def showEvent(self, event):
+        if not self.isMaximized():
+            # have to do this here as the frameGeometry is not correct until shown
+            move_to_screen_center(self)
+        super().showEvent(event)
+
+    def changeEvent(self, event):
+        if event.type() == QEvent.WindowStateChange and not self.isMaximized():
+            move_to_screen_center(self)
+        super().changeEvent(event)
 
     def closeEvent(self, close_event):
         # Force closing of our tabbed widgets in reverse order so that the
@@ -250,6 +260,7 @@ class TabWindow(QMainWindow):
 class TabBarWindow(TabWindow):
     """Implementation which uses a separate QTabBar and QStackedWidget.
     The Tab bar is placed next to the menu bar to save real estate."""
+
     def __init__(self, app, **kwargs):
         super().__init__(app, **kwargs)
 
@@ -286,8 +297,7 @@ class TabBarWindow(TabWindow):
         self.tabBar.insertTab(stack_index, title)
 
         if isinstance(page, DirectoriesDialog):
-            self.tabBar.setTabButton(
-                stack_index, QTabBar.RightSide, None)
+            self.tabBar.setTabButton(stack_index, QTabBar.RightSide, None)
         if switch:  # switch to the added tab immediately upon creation
             self.setTabIndex(stack_index)
         return stack_index

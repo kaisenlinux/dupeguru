@@ -13,7 +13,7 @@ import locale
 import logging
 import os.path as op
 
-from .plat import ISWINDOWS, ISLINUX
+from .plat import ISLINUX
 
 _trfunc = None
 _trget = None
@@ -46,40 +46,28 @@ def set_tr(new_tr, new_trget=None):
 
 
 def get_locale_name(lang):
-    if ISWINDOWS:
-        # http://msdn.microsoft.com/en-us/library/39cwe7zf(vs.71).aspx
-        LANG2LOCALENAME = {
-            "cs": "czy",
-            "de": "deu",
-            "el": "grc",
-            "es": "esn",
-            "fr": "fra",
-            "it": "ita",
-            "ko": "korean",
-            "nl": "nld",
-            "pl_PL": "polish_poland",
-            "pt_BR": "ptb",
-            "ru": "rus",
-            "zh_CN": "chs",
-        }
-    else:
-        LANG2LOCALENAME = {
-            "cs": "cs_CZ",
-            "de": "de_DE",
-            "el": "el_GR",
-            "es": "es_ES",
-            "fr": "fr_FR",
-            "it": "it_IT",
-            "nl": "nl_NL",
-            "hy": "hy_AM",
-            "ko": "ko_KR",
-            "pl_PL": "pl_PL",
-            "pt_BR": "pt_BR",
-            "ru": "ru_RU",
-            "uk": "uk_UA",
-            "vi": "vi_VN",
-            "zh_CN": "zh_CN",
-        }
+    # Removed old conversion code as windows seems to support these
+    LANG2LOCALENAME = {
+        "cs": "cs_CZ",
+        "de": "de_DE",
+        "el": "el_GR",
+        "en": "en",
+        "es": "es_ES",
+        "fr": "fr_FR",
+        "hy": "hy_AM",
+        "it": "it_IT",
+        "ja": "ja_JP",
+        "ko": "ko_KR",
+        "ms": "ms_MY",
+        "nl": "nl_NL",
+        "pl_PL": "pl_PL",
+        "pt_BR": "pt_BR",
+        "ru": "ru_RU",
+        "tr": "tr_TR",
+        "uk": "uk_UA",
+        "vi": "vi_VN",
+        "zh_CN": "zh_CN",
+    }
     if lang not in LANG2LOCALENAME:
         return None
     result = LANG2LOCALENAME[lang]
@@ -123,9 +111,7 @@ def install_gettext_trans(base_folder, lang):
         if not lang:
             return lambda s: s
         try:
-            return gettext.translation(
-                domain, localedir=base_folder, languages=[lang]
-            ).gettext
+            return gettext.translation(domain, localedir=base_folder, languages=[lang]).gettext
         except IOError:
             return lambda s: s
 
@@ -146,11 +132,11 @@ def install_gettext_trans(base_folder, lang):
 def install_gettext_trans_under_cocoa():
     from cocoa import proxy
 
-    resFolder = proxy.getResourcePath()
-    baseFolder = op.join(resFolder, "locale")
-    currentLang = proxy.systemLang()
-    install_gettext_trans(baseFolder, currentLang)
-    localename = get_locale_name(currentLang)
+    res_folder = proxy.getResourcePath()
+    base_folder = op.join(res_folder, "locale")
+    current_lang = proxy.systemLang()
+    install_gettext_trans(base_folder, current_lang)
+    localename = get_locale_name(current_lang)
     if localename is not None:
         locale.setlocale(locale.LC_ALL, localename)
 
@@ -164,11 +150,13 @@ def install_gettext_trans_under_qt(base_folder, lang=None):
     if not lang:
         lang = str(QLocale.system().name())[:2]
     localename = get_locale_name(lang)
-    if localename is not None:
-        try:
-            locale.setlocale(locale.LC_ALL, localename)
-        except locale.Error:
-            logging.warning("Couldn't set locale %s", localename)
+    if localename is None:
+        lang = "en"
+        localename = get_locale_name(lang)
+    try:
+        locale.setlocale(locale.LC_ALL, localename)
+    except locale.Error:
+        logging.warning("Couldn't set locale %s", localename)
     qmname = "qt_%s" % lang
     if ISLINUX:
         # Under linux, a full Qt installation is already available in the system, we didn't bundle

@@ -52,10 +52,13 @@ def test_empty(fake_fileexists):
 def test_default_settings(fake_fileexists):
     s = Scanner()
     eq_(s.min_match_percentage, 80)
-    eq_(s.scan_type, ScanType.Filename)
+    eq_(s.scan_type, ScanType.FILENAME)
     eq_(s.mix_file_kind, True)
     eq_(s.word_weighting, False)
     eq_(s.match_similar_words, False)
+    eq_(s.size_threshold, 0)
+    eq_(s.large_size_threshold, 0)
+    eq_(s.big_file_size_threshold, 0)
 
 
 def test_simple_with_default_settings(fake_fileexists):
@@ -97,7 +100,7 @@ def test_trim_all_ref_groups(fake_fileexists):
     eq_(s.discarded_file_count, 0)
 
 
-def test_priorize(fake_fileexists):
+def test_prioritize(fake_fileexists):
     s = Scanner()
     f = [
         no("foo", path="p1"),
@@ -118,11 +121,11 @@ def test_priorize(fake_fileexists):
 
 def test_content_scan(fake_fileexists):
     s = Scanner()
-    s.scan_type = ScanType.Contents
+    s.scan_type = ScanType.CONTENTS
     f = [no("foo"), no("bar"), no("bleh")]
-    f[0].md5 = f[0].md5partial = "foobar"
-    f[1].md5 = f[1].md5partial = "foobar"
-    f[2].md5 = f[2].md5partial = "bleh"
+    f[0].md5 = f[0].md5partial = f[0].md5samples = "foobar"
+    f[1].md5 = f[1].md5partial = f[1].md5samples = "foobar"
+    f[2].md5 = f[2].md5partial = f[1].md5samples = "bleh"
     r = s.get_dupe_groups(f)
     eq_(len(r), 1)
     eq_(len(r[0]), 2)
@@ -132,22 +135,95 @@ def test_content_scan(fake_fileexists):
 def test_content_scan_compare_sizes_first(fake_fileexists):
     class MyFile(no):
         @property
-        def md5(file):
+        def md5(self):
             raise AssertionError()
 
     s = Scanner()
-    s.scan_type = ScanType.Contents
+    s.scan_type = ScanType.CONTENTS
     f = [MyFile("foo", 1), MyFile("bar", 2)]
     eq_(len(s.get_dupe_groups(f)), 0)
 
 
+def test_ignore_file_size(fake_fileexists):
+    s = Scanner()
+    s.scan_type = ScanType.CONTENTS
+    small_size = 10  # 10KB
+    s.size_threshold = 0
+    large_size = 100 * 1024 * 1024  # 100MB
+    s.large_size_threshold = 0
+    f = [
+        no("smallignore1", small_size - 1),
+        no("smallignore2", small_size - 1),
+        no("small1", small_size),
+        no("small2", small_size),
+        no("large1", large_size),
+        no("large2", large_size),
+        no("largeignore1", large_size + 1),
+        no("largeignore2", large_size + 1),
+    ]
+    f[0].md5 = f[0].md5partial = f[0].md5samples = "smallignore"
+    f[1].md5 = f[1].md5partial = f[1].md5samples = "smallignore"
+    f[2].md5 = f[2].md5partial = f[2].md5samples = "small"
+    f[3].md5 = f[3].md5partial = f[3].md5samples = "small"
+    f[4].md5 = f[4].md5partial = f[4].md5samples = "large"
+    f[5].md5 = f[5].md5partial = f[5].md5samples = "large"
+    f[6].md5 = f[6].md5partial = f[6].md5samples = "largeignore"
+    f[7].md5 = f[7].md5partial = f[7].md5samples = "largeignore"
+
+    r = s.get_dupe_groups(f)
+    # No ignores
+    eq_(len(r), 4)
+    # Ignore smaller
+    s.size_threshold = small_size
+    r = s.get_dupe_groups(f)
+    eq_(len(r), 3)
+    # Ignore larger
+    s.size_threshold = 0
+    s.large_size_threshold = large_size
+    r = s.get_dupe_groups(f)
+    eq_(len(r), 3)
+    # Ignore both
+    s.size_threshold = small_size
+    r = s.get_dupe_groups(f)
+    eq_(len(r), 2)
+
+
+def test_big_file_partial_hashes(fake_fileexists):
+    s = Scanner()
+    s.scan_type = ScanType.CONTENTS
+
+    smallsize = 1
+    bigsize = 100 * 1024 * 1024  # 100MB
+    s.big_file_size_threshold = bigsize
+
+    f = [no("bigfoo", bigsize), no("bigbar", bigsize), no("smallfoo", smallsize), no("smallbar", smallsize)]
+    f[0].md5 = f[0].md5partial = f[0].md5samples = "foobar"
+    f[1].md5 = f[1].md5partial = f[1].md5samples = "foobar"
+    f[2].md5 = f[2].md5partial = "bleh"
+    f[3].md5 = f[3].md5partial = "bleh"
+    r = s.get_dupe_groups(f)
+    eq_(len(r), 2)
+
+    # md5partial is still the same, but the file is actually different
+    f[1].md5 = f[1].md5samples = "difffoobar"
+    # here we compare the full md5s, as the user disabled the optimization
+    s.big_file_size_threshold = 0
+    r = s.get_dupe_groups(f)
+    eq_(len(r), 1)
+
+    # here we should compare the md5samples, and see they are different
+    s.big_file_size_threshold = bigsize
+    r = s.get_dupe_groups(f)
+    eq_(len(r), 1)
+
+
 def test_min_match_perc_doesnt_matter_for_content_scan(fake_fileexists):
     s = Scanner()
-    s.scan_type = ScanType.Contents
+    s.scan_type = ScanType.CONTENTS
     f = [no("foo"), no("bar"), no("bleh")]
-    f[0].md5 = f[0].md5partial = "foobar"
-    f[1].md5 = f[1].md5partial = "foobar"
-    f[2].md5 = f[2].md5partial = "bleh"
+    f[0].md5 = f[0].md5partial = f[0].md5samples = "foobar"
+    f[1].md5 = f[1].md5partial = f[1].md5samples = "foobar"
+    f[2].md5 = f[2].md5partial = f[2].md5samples = "bleh"
     s.min_match_percentage = 101
     r = s.get_dupe_groups(f)
     eq_(len(r), 1)
@@ -160,15 +236,12 @@ def test_min_match_perc_doesnt_matter_for_content_scan(fake_fileexists):
 
 def test_content_scan_doesnt_put_md5_in_words_at_the_end(fake_fileexists):
     s = Scanner()
-    s.scan_type = ScanType.Contents
+    s.scan_type = ScanType.CONTENTS
     f = [no("foo"), no("bar")]
-    f[0].md5 = f[
-        0
-    ].md5partial = "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f"
-    f[1].md5 = f[
-        1
-    ].md5partial = "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f"
+    f[0].md5 = f[0].md5partial = f[0].md5samples = "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f"
+    f[1].md5 = f[1].md5partial = f[1].md5samples = "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f"
     r = s.get_dupe_groups(f)
+    # FIXME looks like we are missing something here?
     r[0]
 
 
@@ -229,7 +302,7 @@ def test_similar_words(fake_fileexists):
 
 def test_fields(fake_fileexists):
     s = Scanner()
-    s.scan_type = ScanType.Fields
+    s.scan_type = ScanType.FIELDS
     f = [no("The White Stripes - Little Ghost"), no("The White Stripes - Little Acorn")]
     r = s.get_dupe_groups(f)
     eq_(len(r), 0)
@@ -237,7 +310,7 @@ def test_fields(fake_fileexists):
 
 def test_fields_no_order(fake_fileexists):
     s = Scanner()
-    s.scan_type = ScanType.FieldsNoOrder
+    s.scan_type = ScanType.FIELDSNOORDER
     f = [no("The White Stripes - Little Ghost"), no("Little Ghost - The White Stripes")]
     r = s.get_dupe_groups(f)
     eq_(len(r), 1)
@@ -245,7 +318,7 @@ def test_fields_no_order(fake_fileexists):
 
 def test_tag_scan(fake_fileexists):
     s = Scanner()
-    s.scan_type = ScanType.Tag
+    s.scan_type = ScanType.TAG
     o1 = no("foo")
     o2 = no("bar")
     o1.artist = "The White Stripes"
@@ -258,7 +331,7 @@ def test_tag_scan(fake_fileexists):
 
 def test_tag_with_album_scan(fake_fileexists):
     s = Scanner()
-    s.scan_type = ScanType.Tag
+    s.scan_type = ScanType.TAG
     s.scanned_tags = set(["artist", "album", "title"])
     o1 = no("foo")
     o2 = no("bar")
@@ -278,7 +351,7 @@ def test_tag_with_album_scan(fake_fileexists):
 
 def test_that_dash_in_tags_dont_create_new_fields(fake_fileexists):
     s = Scanner()
-    s.scan_type = ScanType.Tag
+    s.scan_type = ScanType.TAG
     s.scanned_tags = set(["artist", "album", "title"])
     s.min_match_percentage = 50
     o1 = no("foo")
@@ -295,7 +368,7 @@ def test_that_dash_in_tags_dont_create_new_fields(fake_fileexists):
 
 def test_tag_scan_with_different_scanned(fake_fileexists):
     s = Scanner()
-    s.scan_type = ScanType.Tag
+    s.scan_type = ScanType.TAG
     s.scanned_tags = set(["track", "year"])
     o1 = no("foo")
     o2 = no("bar")
@@ -313,7 +386,7 @@ def test_tag_scan_with_different_scanned(fake_fileexists):
 
 def test_tag_scan_only_scans_existing_tags(fake_fileexists):
     s = Scanner()
-    s.scan_type = ScanType.Tag
+    s.scan_type = ScanType.TAG
     s.scanned_tags = set(["artist", "foo"])
     o1 = no("foo")
     o2 = no("bar")
@@ -327,7 +400,7 @@ def test_tag_scan_only_scans_existing_tags(fake_fileexists):
 
 def test_tag_scan_converts_to_str(fake_fileexists):
     s = Scanner()
-    s.scan_type = ScanType.Tag
+    s.scan_type = ScanType.TAG
     s.scanned_tags = set(["track"])
     o1 = no("foo")
     o2 = no("bar")
@@ -342,7 +415,7 @@ def test_tag_scan_converts_to_str(fake_fileexists):
 
 def test_tag_scan_non_ascii(fake_fileexists):
     s = Scanner()
-    s.scan_type = ScanType.Tag
+    s.scan_type = ScanType.TAG
     s.scanned_tags = set(["title"])
     o1 = no("foo")
     o2 = no("bar")
@@ -364,8 +437,8 @@ def test_ignore_list(fake_fileexists):
     f2.path = Path("dir2/foobar")
     f3.path = Path("dir3/foobar")
     ignore_list = IgnoreList()
-    ignore_list.Ignore(str(f1.path), str(f2.path))
-    ignore_list.Ignore(str(f1.path), str(f3.path))
+    ignore_list.ignore(str(f1.path), str(f2.path))
+    ignore_list.ignore(str(f1.path), str(f3.path))
     r = s.get_dupe_groups([f1, f2, f3], ignore_list=ignore_list)
     eq_(len(r), 1)
     g = r[0]
@@ -388,8 +461,8 @@ def test_ignore_list_checks_for_unicode(fake_fileexists):
     f2.path = Path("foo2\u00e9")
     f3.path = Path("foo3\u00e9")
     ignore_list = IgnoreList()
-    ignore_list.Ignore(str(f1.path), str(f2.path))
-    ignore_list.Ignore(str(f1.path), str(f3.path))
+    ignore_list.ignore(str(f1.path), str(f2.path))
+    ignore_list.ignore(str(f1.path), str(f3.path))
     r = s.get_dupe_groups([f1, f2, f3], ignore_list=ignore_list)
     eq_(len(r), 1)
     g = r[0]
@@ -493,7 +566,7 @@ def test_dont_group_files_that_dont_exist(tmpdir):
     # In this test, we have to delete one of the files between the get_matches() part and the
     # get_groups() part.
     s = Scanner()
-    s.scan_type = ScanType.Contents
+    s.scan_type = ScanType.CONTENTS
     p = Path(str(tmpdir))
     p["file1"].open("w").write("foo")
     p["file2"].open("w").write("foo")
@@ -512,23 +585,23 @@ def test_folder_scan_exclude_subfolder_matches(fake_fileexists):
     # when doing a Folders scan type, don't include matches for folders whose parent folder already
     # match.
     s = Scanner()
-    s.scan_type = ScanType.Folders
+    s.scan_type = ScanType.FOLDERS
     topf1 = no("top folder 1", size=42)
-    topf1.md5 = topf1.md5partial = b"some_md5_1"
+    topf1.md5 = topf1.md5partial = topf1.md5samples = b"some_md5_1"
     topf1.path = Path("/topf1")
     topf2 = no("top folder 2", size=42)
-    topf2.md5 = topf2.md5partial = b"some_md5_1"
+    topf2.md5 = topf2.md5partial = topf2.md5samples = b"some_md5_1"
     topf2.path = Path("/topf2")
     subf1 = no("sub folder 1", size=41)
-    subf1.md5 = subf1.md5partial = b"some_md5_2"
+    subf1.md5 = subf1.md5partial = subf1.md5samples = b"some_md5_2"
     subf1.path = Path("/topf1/sub")
     subf2 = no("sub folder 2", size=41)
-    subf2.md5 = subf2.md5partial = b"some_md5_2"
+    subf2.md5 = subf2.md5partial = subf2.md5samples = b"some_md5_2"
     subf2.path = Path("/topf2/sub")
     eq_(len(s.get_dupe_groups([topf1, topf2, subf1, subf2])), 1)  # only top folders
     # however, if another folder matches a subfolder, keep in in the matches
     otherf = no("other folder", size=41)
-    otherf.md5 = otherf.md5partial = b"some_md5_2"
+    otherf.md5 = otherf.md5partial = otherf.md5samples = b"some_md5_2"
     otherf.path = Path("/otherfolder")
     eq_(len(s.get_dupe_groups([topf1, topf2, subf1, subf2, otherf])), 2)
 
@@ -547,21 +620,21 @@ def test_dont_count_ref_files_as_discarded(fake_fileexists):
     # However, this causes problems in "discarded" counting and we make sure here that we don't
     # report discarded matches in exact duplicate scans.
     s = Scanner()
-    s.scan_type = ScanType.Contents
+    s.scan_type = ScanType.CONTENTS
     o1 = no("foo", path="p1")
     o2 = no("foo", path="p2")
     o3 = no("foo", path="p3")
-    o1.md5 = o1.md5partial = "foobar"
-    o2.md5 = o2.md5partial = "foobar"
-    o3.md5 = o3.md5partial = "foobar"
+    o1.md5 = o1.md5partial = o1.md5samples = "foobar"
+    o2.md5 = o2.md5partial = o2.md5samples = "foobar"
+    o3.md5 = o3.md5partial = o3.md5samples = "foobar"
     o1.is_ref = True
     o2.is_ref = True
     eq_(len(s.get_dupe_groups([o1, o2, o3])), 1)
     eq_(s.discarded_file_count, 0)
 
 
-def test_priorize_me(fake_fileexists):
-    # in ScannerME, bitrate goes first (right after is_ref) in priorization
+def test_prioritize_me(fake_fileexists):
+    # in ScannerME, bitrate goes first (right after is_ref) in prioritization
     s = ScannerME()
     o1, o2 = no("foo", path="p1"), no("foo", path="p2")
     o1.bitrate = 1

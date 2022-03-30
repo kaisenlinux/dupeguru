@@ -26,11 +26,24 @@ from hscommon.build import (
     copy_all,
 )
 
+ENTRY_SCRIPT = "run.py"
+LOCALE_DIR = "build/locale"
+HELP_DIR = "build/help"
+
 
 def parse_args():
     parser = ArgumentParser()
     setup_package_argparser(parser)
     return parser.parse_args()
+
+
+def check_loc_doc():
+    if not op.exists(LOCALE_DIR):
+        print('Locale files are missing. Have you run "build.py --loc"?')
+    # include help files if they are built otherwise exit as they should be included?
+    if not op.exists(HELP_DIR):
+        print('Help files are missing. Have you run "build.py --doc"?')
+    return op.exists(LOCALE_DIR) and op.exists(HELP_DIR)
 
 
 def copy_files_to_package(destpath, packages, with_so):
@@ -40,17 +53,13 @@ def copy_files_to_package(destpath, packages, with_so):
     if op.exists(destpath):
         shutil.rmtree(destpath)
     os.makedirs(destpath)
-    shutil.copy("run.py", op.join(destpath, "run.py"))
+    shutil.copy(ENTRY_SCRIPT, op.join(destpath, ENTRY_SCRIPT))
     extra_ignores = ["*.so"] if not with_so else None
     copy_packages(packages, destpath, extra_ignores=extra_ignores)
     # include locale files if they are built otherwise exit as it will break
     # the localization
-    if not op.exists("build/locale"):
-        print('Locale files are missing. Have you run "build.py --loc"? Exiting...')
-        return
-    # include help files if they are built otherwise exit as they should be included?
-    if not op.exists("build/help"):
-        print('Help files are missing. Have you run "build.py --doc"? Exiting...')
+    if not check_loc_doc():
+        print("Exiting...")
         return
     shutil.copytree(op.join("build", "help"), op.join(destpath, "help"))
     shutil.copytree(op.join("build", "locale"), op.join(destpath, "locale"))
@@ -62,7 +71,7 @@ def package_debian_distribution(distribution):
     version = "{}~{}".format(app_version, distribution)
     destpath = op.join("build", "dupeguru-{}".format(version))
     srcpath = op.join(destpath, "src")
-    packages = ["hscommon", "core", "qtlib", "qt", "send2trash", "hsaudiotag"]
+    packages = ["hscommon", "core", "qtlib", "qt", "send2trash"]
     copy_files_to_package(srcpath, packages, with_so=False)
     os.mkdir(op.join(destpath, "modules"))
     copy_all(op.join("core", "pe", "modules", "*.*"), op.join(destpath, "modules"))
@@ -82,11 +91,7 @@ def package_debian_distribution(distribution):
         copy(op.join(debskel, fn), op.join(debdest, fn))
     filereplace(op.join(debskel, "control"), op.join(debdest, "control"), **debopts)
     filereplace(op.join(debskel, "Makefile"), op.join(destpath, "Makefile"), **debopts)
-    filereplace(
-        op.join(debskel, "dupeguru.desktop"),
-        op.join(debdest, "dupeguru.desktop"),
-        **debopts
-    )
+    filereplace(op.join(debskel, "dupeguru.desktop"), op.join(debdest, "dupeguru.desktop"), **debopts)
     changelogpath = op.join("help", "changelog")
     changelog_dest = op.join(debdest, "changelog")
     project_name = debopts["pkgname"]
@@ -117,22 +122,11 @@ def package_arch():
     # need to include them).
     print("Packaging for Arch")
     srcpath = op.join("build", "dupeguru-arch")
-    packages = [
-        "hscommon",
-        "core",
-        "qtlib",
-        "qt",
-        "send2trash",
-        "hsaudiotag",
-    ]
+    packages = ["hscommon", "core", "qtlib", "qt", "send2trash"]
     copy_files_to_package(srcpath, packages, with_so=True)
     shutil.copy(op.join("images", "dgse_logo_128.png"), srcpath)
     debopts = json.load(open(op.join("pkg", "arch", "dupeguru.json")))
-    filereplace(
-        op.join("pkg", "arch", "dupeguru.desktop"),
-        op.join(srcpath, "dupeguru.desktop"),
-        **debopts
-    )
+    filereplace(op.join("pkg", "arch", "dupeguru.desktop"), op.join(srcpath, "dupeguru.desktop"), **debopts)
 
 
 def package_source_txz():
@@ -160,12 +154,8 @@ def package_windows():
         arch = "x86"
     # include locale files if they are built otherwise exit as it will break
     # the localization
-    if not op.exists("build/locale"):
-        print('Locale files are missing. Have you run "build.py --loc"? Exiting...')
-        return
-    # include help files if they are built otherwise exit as they should be included?
-    if not op.exists("build/help"):
-        print('Help files are missing. Have you run "build.py --doc"? Exiting...')
+    if not check_loc_doc():
+        print("Exiting...")
         return
     # create version information file from template
     try:
@@ -173,11 +163,7 @@ def package_windows():
         version_info = version_template.read()
         version_template.close()
         version_info_file = open("win_version_info.txt", "w")
-        version_info_file.write(
-            version_info.format(
-                version_array[0], version_array[1], version_array[2], bits
-            )
-        )
+        version_info_file.write(version_info.format(version_array[0], version_array[1], version_array[2], bits))
         version_info_file.close()
     except Exception:
         print("Error creating version info file, exiting...")
@@ -192,13 +178,11 @@ def package_windows():
             "--windowed",
             "--noconfirm",
             "--icon=images/dgse_logo.ico",
-            "--add-data=build/locale;locale",
-            "--add-data=build/help;help",
+            "--add-data={0};locale".format(LOCALE_DIR),
+            "--add-data={0};help".format(HELP_DIR),
             "--version-file=win_version_info.txt",
-            "--paths=C:\\Program Files (x86)\\Windows Kits\\10\\Redist\\ucrt\\DLLs\\{0}".format(
-                arch
-            ),
-            "run.py",
+            "--paths=C:\\Program Files (x86)\\Windows Kits\\10\\Redist\\ucrt\\DLLs\\{0}".format(arch),
+            ENTRY_SCRIPT,
         ]
     )
     # remove version info file
@@ -214,12 +198,8 @@ def package_windows():
 def package_macos():
     # include locale files if they are built otherwise exit as it will break
     # the localization
-    if not op.exists("build/locale"):
-        print('Locale files are missing. Have you run "build.py --loc"? Exiting...')
-        return
-    # include help files if they are built otherwise exit as they should be included?
-    if not op.exists("build/help"):
-        print('Help files are missing. Have you run "build.py --doc"? Exiting...')
+    if not check_loc_doc():
+        print("Exiting")
         return
     # run pyinstaller from here:
     import PyInstaller.__main__
@@ -231,9 +211,9 @@ def package_macos():
             "--noconfirm",
             "--icon=images/dupeguru.icns",
             "--osx-bundle-identifier=com.hardcoded-software.dupeguru",
-            "--add-data=build/locale:locale",
-            "--add-data=build/help:help",
-            "run.py",
+            "--add-data={0}:locale".format(LOCALE_DIR),
+            "--add-data={0}:help".format(HELP_DIR),
+            "{0}".format(ENTRY_SCRIPT),
         ]
     )
 

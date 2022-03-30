@@ -11,7 +11,7 @@ from hscommon.gui.tree import Tree, Node
 from ..directories import DirectoryState
 from .base import DupeGuruGUIObject
 
-STATE_ORDER = [DirectoryState.Normal, DirectoryState.Reference, DirectoryState.Excluded]
+STATE_ORDER = [DirectoryState.NORMAL, DirectoryState.REFERENCE, DirectoryState.EXCLUDED]
 
 
 # Lazily loads children
@@ -36,9 +36,7 @@ class DirectoryNode(Node):
         self._loaded = True
 
     def update_all_states(self):
-        self._state = STATE_ORDER.index(
-            self._tree.app.directories.get_state(self._directory_path)
-        )
+        self._state = STATE_ORDER.index(self._tree.app.directories.get_state(self._directory_path))
         for node in self:
             node.update_all_states()
 
@@ -88,9 +86,9 @@ class DirectoryTree(Tree, DupeGuruGUIObject):
         else:
             # All selected nodes or on second-or-more level, exclude them.
             nodes = self.selected_nodes
-            newstate = DirectoryState.Excluded
-            if all(node.state == DirectoryState.Excluded for node in nodes):
-                newstate = DirectoryState.Normal
+            newstate = DirectoryState.EXCLUDED
+            if all(node.state == DirectoryState.EXCLUDED for node in nodes):
+                newstate = DirectoryState.NORMAL
             for node in nodes:
                 node.state = newstate
 
@@ -105,5 +103,4 @@ class DirectoryTree(Tree, DupeGuruGUIObject):
 
     # --- Event Handlers
     def directories_changed(self):
-        self._refresh()
-        self.view.refresh()
+        self._view_updated()

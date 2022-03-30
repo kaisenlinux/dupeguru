@@ -48,31 +48,31 @@ MSG_MANY_FILES_TO_OPEN = tr(
 
 
 class DestType:
-    Direct = 0
-    Relative = 1
-    Absolute = 2
+    DIRECT = 0
+    RELATIVE = 1
+    ABSOLUTE = 2
 
 
 class JobType:
-    Scan = "job_scan"
-    Load = "job_load"
-    Move = "job_move"
-    Copy = "job_copy"
-    Delete = "job_delete"
+    SCAN = "job_scan"
+    LOAD = "job_load"
+    MOVE = "job_move"
+    COPY = "job_copy"
+    DELETE = "job_delete"
 
 
 class AppMode:
-    Standard = 0
-    Music = 1
-    Picture = 2
+    STANDARD = 0
+    MUSIC = 1
+    PICTURE = 2
 
 
 JOBID2TITLE = {
-    JobType.Scan: tr("Scanning for duplicates"),
-    JobType.Load: tr("Loading"),
-    JobType.Move: tr("Moving"),
-    JobType.Copy: tr("Copying"),
-    JobType.Delete: tr("Sending to Trash"),
+    JobType.SCAN: tr("Scanning for duplicates"),
+    JobType.LOAD: tr("Loading"),
+    JobType.MOVE: tr("Moving"),
+    JobType.COPY: tr("Copying"),
+    JobType.DELETE: tr("Sending to Trash"),
 }
 
 
@@ -126,20 +126,20 @@ class DupeGuru(Broadcaster):
 
     PICTURE_CACHE_TYPE = "sqlite"  # set to 'shelve' for a ShelveCache
 
-    def __init__(self, view):
+    def __init__(self, view, portable=False):
         if view.get_default(DEBUG_MODE_PREFERENCE):
             logging.getLogger().setLevel(logging.DEBUG)
             logging.debug("Debug mode enabled")
         Broadcaster.__init__(self)
         self.view = view
-        self.appdata = desktop.special_folder_path(
-            desktop.SpecialFolder.AppData, appname=self.NAME
-        )
+        self.appdata = desktop.special_folder_path(desktop.SpecialFolder.APPDATA, appname=self.NAME, portable=portable)
         if not op.exists(self.appdata):
             os.makedirs(self.appdata)
-        self.app_mode = AppMode.Standard
+        self.app_mode = AppMode.STANDARD
         self.discarded_file_count = 0
         self.exclude_list = ExcludeList()
+        hash_cache_file = op.join(self.appdata, "hash_cache.db")
+        fs.filesdb.connect(hash_cache_file)
         self.directories = directories.Directories(self.exclude_list)
         self.results = results.Results(self)
         self.ignore_list = IgnoreList()
@@ -150,7 +150,7 @@ class DupeGuru(Broadcaster):
             "escape_filter_regexp": True,
             "clean_empty_dirs": False,
             "ignore_hardlink_matches": False,
-            "copymove_dest_type": DestType.Relative,
+            "copymove_dest_type": DestType.RELATIVE,
             "picture_cache_type": self.PICTURE_CACHE_TYPE,
         }
         self.selected_dupes = []
@@ -171,9 +171,9 @@ class DupeGuru(Broadcaster):
     def _recreate_result_table(self):
         if self.result_table is not None:
             self.result_table.disconnect()
-        if self.app_mode == AppMode.Picture:
+        if self.app_mode == AppMode.PICTURE:
             self.result_table = pe.result_table.ResultTable(self)
-        elif self.app_mode == AppMode.Music:
+        elif self.app_mode == AppMode.MUSIC:
             self.result_table = me.result_table.ResultTable(self)
         else:
             self.result_table = se.result_table.ResultTable(self)
@@ -182,23 +182,17 @@ class DupeGuru(Broadcaster):
 
     def _get_picture_cache_path(self):
         cache_type = self.options["picture_cache_type"]
-        cache_name = (
-            "cached_pictures.shelve" if cache_type == "shelve" else "cached_pictures.db"
-        )
+        cache_name = "cached_pictures.shelve" if cache_type == "shelve" else "cached_pictures.db"
         return op.join(self.appdata, cache_name)
 
     def _get_dupe_sort_key(self, dupe, get_group, key, delta):
-        if self.app_mode in (AppMode.Music, AppMode.Picture):
-            if key == "folder_path":
-                dupe_folder_path = getattr(
-                    dupe, "display_folder_path", dupe.folder_path
-                )
-                return str(dupe_folder_path).lower()
-        if self.app_mode == AppMode.Picture:
-            if delta and key == "dimensions":
-                r = cmp_value(dupe, key)
-                ref_value = cmp_value(get_group().ref, key)
-                return get_delta_dimensions(r, ref_value)
+        if self.app_mode in (AppMode.MUSIC, AppMode.PICTURE) and key == "folder_path":
+            dupe_folder_path = getattr(dupe, "display_folder_path", dupe.folder_path)
+            return str(dupe_folder_path).lower()
+        if self.app_mode == AppMode.PICTURE and delta and key == "dimensions":
+            r = cmp_value(dupe, key)
+            ref_value = cmp_value(get_group().ref, key)
+            return get_delta_dimensions(r, ref_value)
         if key == "marked":
             return self.results.is_marked(dupe)
         if key == "percentage":
@@ -218,12 +212,9 @@ class DupeGuru(Broadcaster):
         return result
 
     def _get_group_sort_key(self, group, key):
-        if self.app_mode in (AppMode.Music, AppMode.Picture):
-            if key == "folder_path":
-                dupe_folder_path = getattr(
-                    group.ref, "display_folder_path", group.ref.folder_path
-                )
-                return str(dupe_folder_path).lower()
+        if self.app_mode in (AppMode.MUSIC, AppMode.PICTURE) and key == "folder_path":
+            dupe_folder_path = getattr(group.ref, "display_folder_path", group.ref.folder_path)
+            return str(dupe_folder_path).lower()
         if key == "percentage":
             return group.percentage
         if key == "dupe_count":
@@ -235,9 +226,7 @@ class DupeGuru(Broadcaster):
     def _do_delete(self, j, link_deleted, use_hardlinks, direct_deletion):
         def op(dupe):
             j.add_progress()
-            return self._do_delete_dupe(
-                dupe, link_deleted, use_hardlinks, direct_deletion
-            )
+            return self._do_delete_dupe(dupe, link_deleted, use_hardlinks, direct_deletion)
 
         j.start_job(self.results.mark_count)
         self.results.perform_on_marked(op, True)
@@ -277,11 +266,7 @@ class DupeGuru(Broadcaster):
             return None
 
     def _get_export_data(self):
-        columns = [
-            col
-            for col in self.result_table.columns.ordered_columns
-            if col.visible and col.name != "marked"
-        ]
+        columns = [col for col in self.result_table._columns.ordered_columns if col.visible and col.name != "marked"]
         colnames = [col.display for col in columns]
         rows = []
         for group_id, group in enumerate(self.results.groups):
@@ -293,11 +278,7 @@ class DupeGuru(Broadcaster):
         return colnames, rows
 
     def _results_changed(self):
-        self.selected_dupes = [
-            d
-            for d in self.selected_dupes
-            if self.results.get_group_of_duplicate(d) is not None
-        ]
+        self.selected_dupes = [d for d in self.selected_dupes if self.results.get_group_of_duplicate(d) is not None]
         self.notify("results_changed")
 
     def _start_job(self, jobid, func, args=()):
@@ -312,34 +293,36 @@ class DupeGuru(Broadcaster):
             self.view.show_message(msg)
 
     def _job_completed(self, jobid):
-        if jobid == JobType.Scan:
+        if jobid == JobType.SCAN:
             self._results_changed()
+            fs.filesdb.commit()
             if not self.results.groups:
                 self.view.show_message(tr("No duplicates found."))
             else:
                 self.view.show_results_window()
-        if jobid in {JobType.Move, JobType.Delete}:
+        if jobid in {JobType.MOVE, JobType.DELETE}:
             self._results_changed()
-        if jobid == JobType.Load:
+        if jobid == JobType.LOAD:
             self._recreate_result_table()
             self._results_changed()
             self.view.show_results_window()
-        if jobid in {JobType.Copy, JobType.Move, JobType.Delete}:
+        if jobid in {JobType.COPY, JobType.MOVE, JobType.DELETE}:
             if self.results.problems:
                 self.problem_dialog.refresh()
                 self.view.show_problem_dialog()
             else:
-                msg = {
-                    JobType.Copy: tr("All marked files were copied successfully."),
-                    JobType.Move: tr("All marked files were moved successfully."),
-                    JobType.Delete: tr(
-                        "All marked files were successfully sent to Trash."
-                    ),
-                }[jobid]
+                if jobid == JobType.COPY:
+                    msg = tr("All marked files were copied successfully.")
+                elif jobid == JobType.MOVE:
+                    msg = tr("All marked files were moved successfully.")
+                elif jobid == JobType.DELETE and self.deletion_options.direct:
+                    msg = tr("All marked files were deleted successfully.")
+                else:
+                    msg = tr("All marked files were successfully sent to Trash.")
                 self.view.show_message(msg)
 
     def _job_error(self, jobid, err):
-        if jobid == JobType.Load:
+        if jobid == JobType.LOAD:
             msg = tr("Could not load file: {}").format(err)
             self.view.show_message(msg)
             return False
@@ -369,17 +352,17 @@ class DupeGuru(Broadcaster):
 
     # --- Protected
     def _get_fileclasses(self):
-        if self.app_mode == AppMode.Picture:
+        if self.app_mode == AppMode.PICTURE:
             return [pe.photo.PLAT_SPECIFIC_PHOTO_CLASS]
-        elif self.app_mode == AppMode.Music:
+        elif self.app_mode == AppMode.MUSIC:
             return [me.fs.MusicFile]
         else:
             return [se.fs.File]
 
     def _prioritization_categories(self):
-        if self.app_mode == AppMode.Picture:
+        if self.app_mode == AppMode.PICTURE:
             return pe.prioritize.all_categories()
-        elif self.app_mode == AppMode.Music:
+        elif self.app_mode == AppMode.MUSIC:
             return me.prioritize.all_categories()
         else:
             return prioritize.all_categories()
@@ -401,35 +384,32 @@ class DupeGuru(Broadcaster):
             self.view.show_message(tr("'{}' does not exist.").format(d))
 
     def add_selected_to_ignore_list(self):
-        """Adds :attr:`selected_dupes` to :attr:`ignore_list`.
-        """
+        """Adds :attr:`selected_dupes` to :attr:`ignore_list`."""
         dupes = self.without_ref(self.selected_dupes)
         if not dupes:
             self.view.show_message(MSG_NO_SELECTED_DUPES)
             return
-        msg = tr(
-            "All selected %d matches are going to be ignored in all subsequent scans. Continue?"
-        )
+        msg = tr("All selected %d matches are going to be ignored in all subsequent scans. Continue?")
         if not self.view.ask_yes_no(msg % len(dupes)):
             return
         for dupe in dupes:
             g = self.results.get_group_of_duplicate(dupe)
             for other in g:
                 if other is not dupe:
-                    self.ignore_list.Ignore(str(other.path), str(dupe.path))
+                    self.ignore_list.ignore(str(other.path), str(dupe.path))
         self.remove_duplicates(dupes)
         self.ignore_list_dialog.refresh()
 
-    def apply_filter(self, filter):
+    def apply_filter(self, result_filter):
         """Apply a filter ``filter`` to the results so that it shows only dupe groups that match it.
 
         :param str filter: filter to apply
         """
         self.results.apply_filter(None)
         if self.options["escape_filter_regexp"]:
-            filter = escape(filter, set("()[]\\.|+?^"))
-            filter = escape(filter, "*", ".")
-        self.results.apply_filter(filter)
+            result_filter = escape(result_filter, set("()[]\\.|+?^"))
+            result_filter = escape(result_filter, "*", ".")
+        self.results.apply_filter(result_filter)
         self._results_changed()
 
     def clean_empty_dirs(self, path):
@@ -443,14 +423,17 @@ class DupeGuru(Broadcaster):
         except FileNotFoundError:
             pass  # we don't care
 
+    def clear_hash_cache(self):
+        fs.filesdb.clear()
+
     def copy_or_move(self, dupe, copy: bool, destination: str, dest_type: DestType):
         source_path = dupe.path
         location_path = first(p for p in self.directories if dupe.path in p)
         dest_path = Path(destination)
-        if dest_type in {DestType.Relative, DestType.Absolute}:
+        if dest_type in {DestType.RELATIVE, DestType.ABSOLUTE}:
             # no filename, no windows drive letter
             source_base = source_path.remove_drive_letter().parent()
-            if dest_type == DestType.Relative:
+            if dest_type == DestType.RELATIVE:
                 source_base = source_base[location_path:]
             dest_path = dest_path[source_base]
         if not dest_path.exists():
@@ -483,16 +466,17 @@ class DupeGuru(Broadcaster):
             self.view.show_message(MSG_NO_MARKED_DUPES)
             return
         destination = self.view.select_dest_folder(
-            tr("Select a directory to copy marked files to") if copy
-            else tr("Select a directory to move marked files to"))
+            tr("Select a directory to copy marked files to")
+            if copy
+            else tr("Select a directory to move marked files to")
+        )
         if destination:
             desttype = self.options["copymove_dest_type"]
-            jobid = JobType.Copy if copy else JobType.Move
+            jobid = JobType.COPY if copy else JobType.MOVE
             self._start_job(jobid, do)
 
     def delete_marked(self):
-        """Start an async job to send marked duplicates to the trash.
-        """
+        """Start an async job to send marked duplicates to the trash."""
         if not self.results.mark_count:
             self.view.show_message(MSG_NO_MARKED_DUPES)
             return
@@ -504,7 +488,7 @@ class DupeGuru(Broadcaster):
             self.deletion_options.direct,
         ]
         logging.debug("Starting deletion job with args %r", args)
-        self._start_job(JobType.Delete, self._do_delete, args=args)
+        self._start_job(JobType.DELETE, self._do_delete, args=args)
 
     def export_to_xhtml(self):
         """Export current results to XHTML.
@@ -523,9 +507,7 @@ class DupeGuru(Broadcaster):
         The columns and their order in the resulting CSV file is determined in the same way as in
         :meth:`export_to_xhtml`.
         """
-        dest_file = self.view.select_dest_file(
-            tr("Select a destination for your exported CSV"), "csv"
-        )
+        dest_file = self.view.select_dest_file(tr("Select a destination for your exported CSV"), "csv")
         if dest_file:
             colnames, rows = self._get_export_data()
             try:
@@ -542,9 +524,7 @@ class DupeGuru(Broadcaster):
         try:
             return dupe.get_display_info(group, delta)
         except Exception as e:
-            logging.warning(
-                "Exception (type: %s) on GetDisplayInfo for %s: %s",
-                type(e), str(dupe.path), str(e))
+            logging.warning("Exception (type: %s) on GetDisplayInfo for %s: %s", type(e), str(dupe.path), str(e))
             return empty_data()
 
     def invoke_custom_command(self):
@@ -556,28 +536,26 @@ class DupeGuru(Broadcaster):
         """
         cmd = self.view.get_default("CustomCommand")
         if not cmd:
-            msg = tr(
-                "You have no custom command set up. Set it up in your preferences."
-            )
+            msg = tr("You have no custom command set up. Set it up in your preferences.")
             self.view.show_message(msg)
             return
         if not self.selected_dupes:
             return
-        dupe = self.selected_dupes[0]
-        group = self.results.get_group_of_duplicate(dupe)
-        ref = group.ref
-        cmd = cmd.replace("%d", str(dupe.path))
-        cmd = cmd.replace("%r", str(ref.path))
-        match = re.match(r'"([^"]+)"(.*)', cmd)
-        if match is not None:
-            # This code here is because subprocess. Popen doesn't seem to accept, under Windows,
-            # executable paths with spaces in it, *even* when they're enclosed in "". So this is
-            # a workaround to make the damn thing work.
-            exepath, args = match.groups()
-            path, exename = op.split(exepath)
-            subprocess.Popen(exename + args, shell=True, cwd=path)
-        else:
-            subprocess.Popen(cmd, shell=True)
+        dupes = self.selected_dupes
+        refs = [self.results.get_group_of_duplicate(dupe).ref for dupe in dupes]
+        for dupe, ref in zip(dupes, refs):
+            dupe_cmd = cmd.replace("%d", str(dupe.path))
+            dupe_cmd = dupe_cmd.replace("%r", str(ref.path))
+            match = re.match(r'"([^"]+)"(.*)', dupe_cmd)
+            if match is not None:
+                # This code here is because subprocess. Popen doesn't seem to accept, under Windows,
+                # executable paths with spaces in it, *even* when they're enclosed in "". So this is
+                # a workaround to make the damn thing work.
+                exepath, args = match.groups()
+                path, exename = op.split(exepath)
+                subprocess.Popen(exename + args, shell=True, cwd=path)
+            else:
+                subprocess.Popen(dupe_cmd, shell=True)
 
     def load(self):
         """Load directory selection and ignore list from files in appdata.
@@ -610,7 +588,7 @@ class DupeGuru(Broadcaster):
         def do(j):
             self.results.load_from_xml(filename, self._get_file, j)
 
-        self._start_job(JobType.Load, do)
+        self._start_job(JobType.LOAD, do)
 
     def make_selected_reference(self):
         """Promote :attr:`selected_dupes` to reference position within their respective groups.
@@ -623,9 +601,8 @@ class DupeGuru(Broadcaster):
         changed_groups = set()
         for dupe in dupes:
             g = self.results.get_group_of_duplicate(dupe)
-            if g not in changed_groups:
-                if self.results.make_ref(dupe):
-                    changed_groups.add(g)
+            if g not in changed_groups and self.results.make_ref(dupe):
+                changed_groups.add(g)
         # It's not always obvious to users what this action does, so to make it a bit clearer,
         # we change our selection to the ref of all changed groups. However, we also want to keep
         # the files that were ref before and weren't changed by the action. In effect, what this
@@ -634,9 +611,7 @@ class DupeGuru(Broadcaster):
         if not self.result_table.power_marker:
             if changed_groups:
                 self.selected_dupes = [
-                    d
-                    for d in self.selected_dupes
-                    if self.results.get_group_of_duplicate(d).ref is d
+                    d for d in self.selected_dupes if self.results.get_group_of_duplicate(d).ref is d
                 ]
             self.notify("results_changed")
         else:
@@ -648,20 +623,17 @@ class DupeGuru(Broadcaster):
             self.notify("results_changed_but_keep_selection")
 
     def mark_all(self):
-        """Set all dupes in the results as marked.
-        """
+        """Set all dupes in the results as marked."""
         self.results.mark_all()
         self.notify("marking_changed")
 
     def mark_none(self):
-        """Set all dupes in the results as unmarked.
-        """
+        """Set all dupes in the results as unmarked."""
         self.results.mark_none()
         self.notify("marking_changed")
 
     def mark_invert(self):
-        """Invert the marked state of all dupes in the results.
-        """
+        """Invert the marked state of all dupes in the results."""
         self.results.mark_invert()
         self.notify("marking_changed")
 
@@ -679,18 +651,15 @@ class DupeGuru(Broadcaster):
         self.notify("marking_changed")
 
     def open_selected(self):
-        """Open :attr:`selected_dupes` with their associated application.
-        """
-        if len(self.selected_dupes) > 10:
-            if not self.view.ask_yes_no(MSG_MANY_FILES_TO_OPEN):
-                return
+        """Open :attr:`selected_dupes` with their associated application."""
+        if len(self.selected_dupes) > 10 and not self.view.ask_yes_no(MSG_MANY_FILES_TO_OPEN):
+            return
         for dupe in self.selected_dupes:
             desktop.open_path(dupe.path)
 
     def purge_ignore_list(self):
-        """Remove files that don't exist from :attr:`ignore_list`.
-        """
-        self.ignore_list.Filter(lambda f, s: op.exists(f) and op.exists(s))
+        """Remove files that don't exist from :attr:`ignore_list`."""
+        self.ignore_list.filter(lambda f, s: op.exists(f) and op.exists(s))
         self.ignore_list_dialog.refresh()
 
     def remove_directories(self, indexes):
@@ -719,8 +688,7 @@ class DupeGuru(Broadcaster):
         self.notify("results_changed_but_keep_selection")
 
     def remove_marked(self):
-        """Removed marked duplicates from the results (without touching the files themselves).
-        """
+        """Removed marked duplicates from the results (without touching the files themselves)."""
         if not self.results.mark_count:
             self.view.show_message(MSG_NO_MARKED_DUPES)
             return
@@ -731,8 +699,7 @@ class DupeGuru(Broadcaster):
         self._results_changed()
 
     def remove_selected(self):
-        """Removed :attr:`selected_dupes` from the results (without touching the files themselves).
-        """
+        """Removed :attr:`selected_dupes` from the results (without touching the files themselves)."""
         dupes = self.without_ref(self.selected_dupes)
         if not dupes:
             self.view.show_message(MSG_NO_SELECTED_DUPES)
@@ -770,10 +737,10 @@ class DupeGuru(Broadcaster):
         for group in self.results.groups:
             if group.prioritize(key_func=sort_key):
                 count += 1
+        if count:
+            self.results.refresh_required = True
         self._results_changed()
-        msg = tr("{} duplicate groups were changed by the re-prioritization.").format(
-            count
-        )
+        msg = tr("{} duplicate groups were changed by the re-prioritization.").format(count)
         self.view.show_message(msg)
 
     def reveal_selected(self):
@@ -789,6 +756,9 @@ class DupeGuru(Broadcaster):
         p = op.join(self.appdata, "exclude_list.xml")
         self.exclude_list.save_to_xml(p)
         self.notify("save_session")
+
+    def close(self):
+        fs.filesdb.close()
 
     def save_as(self, filename):
         """Save results in ``filename``.
@@ -817,15 +787,13 @@ class DupeGuru(Broadcaster):
         """
         scanner = self.SCANNER_CLASS()
         if not self.directories.has_any_file():
-            self.view.show_message(
-                tr("The selected directories contain no scannable file.")
-            )
+            self.view.show_message(tr("The selected directories contain no scannable file."))
             return
         # Send relevant options down to the scanner instance
         for k, v in self.options.items():
             if hasattr(scanner, k):
                 setattr(scanner, k, v)
-        if self.app_mode == AppMode.Picture:
+        if self.app_mode == AppMode.PICTURE:
             scanner.cache_path = self._get_picture_cache_path()
         self.results.groups = []
         self._recreate_result_table()
@@ -833,21 +801,17 @@ class DupeGuru(Broadcaster):
 
         def do(j):
             j.set_progress(0, tr("Collecting files to scan"))
-            if scanner.scan_type == ScanType.Folders:
-                files = list(
-                    self.directories.get_folders(folderclass=se.fs.Folder, j=j)
-                )
+            if scanner.scan_type == ScanType.FOLDERS:
+                files = list(self.directories.get_folders(folderclass=se.fs.Folder, j=j))
             else:
-                files = list(
-                    self.directories.get_files(fileclasses=self.fileclasses, j=j)
-                )
+                files = list(self.directories.get_files(fileclasses=self.fileclasses, j=j))
             if self.options["ignore_hardlink_matches"]:
                 files = self._remove_hardlink_dupes(files)
             logging.info("Scanning %d files" % len(files))
             self.results.groups = scanner.get_dupe_groups(files, self.ignore_list, j)
             self.discarded_file_count = scanner.discarded_file_count
 
-        self._start_job(JobType.Scan, do)
+        self._start_job(JobType.SCAN, do)
 
     def toggle_selected_mark_state(self):
         selected = self.without_ref(self.selected_dupes)
@@ -862,13 +826,8 @@ class DupeGuru(Broadcaster):
         self.notify("marking_changed")
 
     def without_ref(self, dupes):
-        """Returns ``dupes`` with all reference elements removed.
-        """
-        return [
-            dupe
-            for dupe in dupes
-            if self.results.get_group_of_duplicate(dupe).ref is not dupe
-        ]
+        """Returns ``dupes`` with all reference elements removed."""
+        return [dupe for dupe in dupes if self.results.get_group_of_duplicate(dupe).ref is not dupe]
 
     def get_default(self, key, fallback_value=None):
         result = nonone(self.view.get_default(key), fallback_value)
@@ -897,18 +856,18 @@ class DupeGuru(Broadcaster):
 
     @property
     def SCANNER_CLASS(self):
-        if self.app_mode == AppMode.Picture:
+        if self.app_mode == AppMode.PICTURE:
             return pe.scanner.ScannerPE
-        elif self.app_mode == AppMode.Music:
+        elif self.app_mode == AppMode.MUSIC:
             return me.scanner.ScannerME
         else:
             return se.scanner.ScannerSE
 
     @property
     def METADATA_TO_READ(self):
-        if self.app_mode == AppMode.Picture:
+        if self.app_mode == AppMode.PICTURE:
             return ["size", "mtime", "dimensions", "exif_timestamp"]
-        elif self.app_mode == AppMode.Music:
+        elif self.app_mode == AppMode.MUSIC:
             return [
                 "size",
                 "mtime",

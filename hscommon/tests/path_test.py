@@ -51,7 +51,7 @@ def test_init_with_tuple_and_list(force_ossep):
 
 def test_init_with_invalid_value(force_ossep):
     try:
-        path = Path(42)  # noqa: F841
+        Path(42)
         assert False
     except TypeError:
         pass
@@ -87,8 +87,7 @@ def test_filename(force_ossep):
 
 
 def test_deal_with_empty_components(force_ossep):
-    """Keep ONLY a leading space, which means we want a leading slash.
-    """
+    """Keep ONLY a leading space, which means we want a leading slash."""
     eq_("foo//bar", str(Path(("foo", "", "bar"))))
     eq_("/foo/bar", str(Path(("", "foo", "bar"))))
     eq_("foo/bar", str(Path("foo/bar/")))
@@ -143,8 +142,6 @@ def test_path_slice(force_ossep):
     eq_((), foobar[:foobar])
     abcd = Path("a/b/c/d")
     a = Path("a")
-    b = Path("b")  # noqa: #F841
-    c = Path("c")  # noqa: #F841
     d = Path("d")
     z = Path("z")
     eq_("b/c", abcd[a:d])
@@ -154,8 +151,7 @@ def test_path_slice(force_ossep):
 
 
 def test_add_with_root_path(force_ossep):
-    """if I perform /a/b/c + /d/e/f, I want /a/b/c/d/e/f, not /a/b/c//d/e/f
-    """
+    """if I perform /a/b/c + /d/e/f, I want /a/b/c/d/e/f, not /a/b/c//d/e/f"""
     eq_("/foo/bar", str(Path("/foo") + Path("/bar")))
 
 
@@ -166,8 +162,7 @@ def test_create_with_tuple_that_have_slash_inside(force_ossep, monkeypatch):
 
 
 def test_auto_decode_os_sep(force_ossep, monkeypatch):
-    """Path should decode any either / or os.sep, but always encode in os.sep.
-    """
+    """Path should decode any either / or os.sep, but always encode in os.sep."""
     eq_(("foo\\bar", "bleh"), Path("foo\\bar/bleh"))
     monkeypatch.setattr(os, "sep", "\\")
     eq_(("foo", "bar/bleh"), Path("foo\\bar/bleh"))
@@ -219,7 +214,7 @@ def test_str_repr_of_mix_between_non_ascii_str_and_unicode(force_ossep):
     eq_("foo\u00e9/bar".encode(sys.getfilesystemencoding()), p.tobytes())
 
 
-def test_Path_of_a_Path_returns_self(force_ossep):
+def test_path_of_a_path_returns_self(force_ossep):
     # if Path() is called with a path as value, just return value.
     p = Path("foo/bar")
     assert Path(p) is p

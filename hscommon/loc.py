@@ -21,6 +21,8 @@ PO2COCOA = {
 
 COCOA2PO = {v: k for k, v in PO2COCOA.items()}
 
+STRING_EXT = ".strings"
+
 
 def get_langs(folder):
     return [name for name in os.listdir(folder) if op.isdir(op.join(folder, name))]
@@ -152,11 +154,9 @@ def strings2pot(target, dest):
 
 
 def allstrings2pot(lprojpath, dest, excludes=None):
-    allstrings = files_with_ext(lprojpath, ".strings")
+    allstrings = files_with_ext(lprojpath, STRING_EXT)
     if excludes:
-        allstrings = [
-            p for p in allstrings if op.splitext(op.basename(p))[0] not in excludes
-        ]
+        allstrings = [p for p in allstrings if op.splitext(op.basename(p))[0] not in excludes]
     for strings_path in allstrings:
         strings2pot(strings_path, dest)
 
@@ -195,11 +195,7 @@ def generate_cocoa_strings_from_code(code_folder, dest_folder):
     # genstrings produces utf-16 files with comments. After having generated the files, we convert
     # them to utf-8 and remove the comments.
     ensure_empty_folder(dest_folder)
-    print_and_do(
-        'genstrings -o "{}" `find "{}" -name *.m | xargs`'.format(
-            dest_folder, code_folder
-        )
-    )
+    print_and_do('genstrings -o "{}" `find "{}" -name *.m | xargs`'.format(dest_folder, code_folder))
     for stringsfile in os.listdir(dest_folder):
         stringspath = op.join(dest_folder, stringsfile)
         with open(stringspath, "rt", encoding="utf-16") as fp:
@@ -214,11 +210,9 @@ def generate_cocoa_strings_from_code(code_folder, dest_folder):
 
 
 def generate_cocoa_strings_from_xib(xib_folder):
-    xibs = [
-        op.join(xib_folder, fn) for fn in os.listdir(xib_folder) if fn.endswith(".xib")
-    ]
+    xibs = [op.join(xib_folder, fn) for fn in os.listdir(xib_folder) if fn.endswith(".xib")]
     for xib in xibs:
-        dest = xib.replace(".xib", ".strings")
+        dest = xib.replace(".xib", STRING_EXT)
         print_and_do("ibtool {} --generate-strings-file {}".format(xib, dest))
         print_and_do("iconv -f utf-16 -t utf-8 {0} | tee {0}".format(dest))
 
@@ -234,10 +228,6 @@ def localize_stringsfile(stringsfile, dest_root_folder):
 
 
 def localize_all_stringsfiles(src_folder, dest_root_folder):
-    stringsfiles = [
-        op.join(src_folder, fn)
-        for fn in os.listdir(src_folder)
-        if fn.endswith(".strings")
-    ]
+    stringsfiles = [op.join(src_folder, fn) for fn in os.listdir(src_folder) if fn.endswith(STRING_EXT)]
     for path in stringsfiles:
         localize_stringsfile(path, dest_root_folder)

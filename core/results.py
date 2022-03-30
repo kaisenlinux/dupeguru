@@ -52,6 +52,7 @@ class Results(Markable):
         self.app = app
         self.problems = []  # (dupe, error_msg)
         self.is_modified = False
+        self.refresh_required = False
 
     def _did_mark(self, dupe):
         self.__marked_size += dupe.size
@@ -94,8 +95,9 @@ class Results(Markable):
 
     # ---Private
     def __get_dupe_list(self):
-        if self.__dupes is None:
+        if self.__dupes is None or self.refresh_required:
             self.__dupes = flatten(group.dupes for group in self.groups)
+            self.refresh_required = False
             if None in self.__dupes:
                 # This is debug logging to try to figure out #44
                 logging.warning(
@@ -104,9 +106,7 @@ class Results(Markable):
                     self.groups,
                 )
             if self.__filtered_dupes:
-                self.__dupes = [
-                    dupe for dupe in self.__dupes if dupe in self.__filtered_dupes
-                ]
+                self.__dupes = [dupe for dupe in self.__dupes if dupe in self.__filtered_dupes]
             sd = self.__dupes_sort_descriptor
             if sd:
                 self.sort_dupes(sd[0], sd[1], sd[2])
@@ -125,18 +125,10 @@ class Results(Markable):
             total_count = self.__total_count
             total_size = self.__total_size
         else:
-            mark_count = len(
-                [dupe for dupe in self.__filtered_dupes if self.is_marked(dupe)]
-            )
-            marked_size = sum(
-                dupe.size for dupe in self.__filtered_dupes if self.is_marked(dupe)
-            )
-            total_count = len(
-                [dupe for dupe in self.__filtered_dupes if self.is_markable(dupe)]
-            )
-            total_size = sum(
-                dupe.size for dupe in self.__filtered_dupes if self.is_markable(dupe)
-            )
+            mark_count = len([dupe for dupe in self.__filtered_dupes if self.is_marked(dupe)])
+            marked_size = sum(dupe.size for dupe in self.__filtered_dupes if self.is_marked(dupe))
+            total_count = len([dupe for dupe in self.__filtered_dupes if self.is_markable(dupe)])
+            total_size = sum(dupe.size for dupe in self.__filtered_dupes if self.is_markable(dupe))
         if self.mark_inverted:
             marked_size = self.__total_size - marked_size
         result = tr("%d / %d (%s / %s) duplicates marked.") % (
@@ -199,11 +191,7 @@ class Results(Markable):
             self.__filters.append(filter_str)
             if self.__filtered_dupes is None:
                 self.__filtered_dupes = flatten(g[:] for g in self.groups)
-            self.__filtered_dupes = set(
-                dupe
-                for dupe in self.__filtered_dupes
-                if filter_re.search(str(dupe.path))
-            )
+            self.__filtered_dupes = set(dupe for dupe in self.__filtered_dupes if filter_re.search(str(dupe.path)))
             filtered_groups = set()
             for dupe in self.__filtered_dupes:
                 filtered_groups.add(self.get_group_of_duplicate(dupe))
@@ -215,8 +203,7 @@ class Results(Markable):
         self.__dupes = None
 
     def get_group_of_duplicate(self, dupe):
-        """Returns :class:`~core.engine.Group` in which ``dupe`` belongs.
-        """
+        """Returns :class:`~core.engine.Group` in which ``dupe`` belongs."""
         try:
             return self.__group_of_duplicate[dupe]
         except (TypeError, KeyError):
@@ -282,8 +269,7 @@ class Results(Markable):
         self.is_modified = False
 
     def make_ref(self, dupe):
-        """Make ``dupe`` take the :attr:`~core.engine.Group.ref` position of its group.
-        """
+        """Make ``dupe`` take the :attr:`~core.engine.Group.ref` position of its group."""
         g = self.get_group_of_duplicate(dupe)
         r = g.ref
         if not g.switch_ref(dupe):
@@ -410,10 +396,10 @@ class Results(Markable):
         """
         if not self.__dupes:
             self.__get_dupe_list()
-        keyfunc = lambda d: self.app._get_dupe_sort_key(
-            d, lambda: self.get_group_of_duplicate(d), key, delta
+        self.__dupes.sort(
+            key=lambda d: self.app._get_dupe_sort_key(d, lambda: self.get_group_of_duplicate(d), key, delta),
+            reverse=not asc,
         )
-        self.__dupes.sort(key=keyfunc, reverse=not asc)
         self.__dupes_sort_descriptor = (key, asc, delta)
 
     def sort_groups(self, key, asc=True):
@@ -424,8 +410,7 @@ class Results(Markable):
         :param str key: key attribute name to sort with.
         :param bool asc: If false, sorting is reversed.
         """
-        keyfunc = lambda g: self.app._get_group_sort_key(g, key)
-        self.groups.sort(key=keyfunc, reverse=not asc)
+        self.groups.sort(key=lambda g: self.app._get_group_sort_key(g, key), reverse=not asc)
         self.__groups_sort_descriptor = (key, asc)
 
     # ---Properties

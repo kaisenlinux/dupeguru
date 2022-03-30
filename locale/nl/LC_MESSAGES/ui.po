@@ -1,10 +1,11 @@
 # Translators:
 # Andrew Senetar <arsenetar@gmail.com>, 2021
 # Fuan <jcfrt@posteo.net>, 2021
+# Bas <duvel3@gmail.com>, 2021
 #
 msgid ""
 msgstr ""
-"Last-Translator: Fuan <jcfrt@posteo.net>, 2021\n"
+"Last-Translator: Bas <duvel3@gmail.com>, 2021\n"
 "Language-Team: Dutch (https://www.transifex.com/voltaicideas/teams/116153/nl/)\n"
 "Language: nl\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -47,7 +48,7 @@ msgstr "Weet je zeker dat je de afbeeldings-analyse cache wilt verwijderen"
 
 #: qt/app.py:184
 msgid "Picture cache cleared."
-msgstr "Afbeelding cache leeggemaakt"
+msgstr "Afbeelding cache leeggemaakt."
 
 #: qt/app.py:251
 msgid "{} file (*.{})"
@@ -55,7 +56,7 @@ msgstr "{} bestand (*.{})"
 
 #: qt/deletion_options.py:30 cocoa/en.lproj/Localizable.strings:0
 msgid "Deletion Options"
-msgstr "verwijder opties"
+msgstr "Verwijderopties"
 
 #: qt/deletion_options.py:35 cocoa/en.lproj/Localizable.strings:0
 msgid "Link deleted files"
@@ -125,7 +126,7 @@ msgstr "Resultaten venster"
 
 #: qt/directories_dialog.py:66
 msgid "Add Folder..."
-msgstr "Folder toevoegen"
+msgstr "Folder toevoegen..."
 
 #: qt/directories_dialog.py:74 qt/result_window.py:100
 #: cocoa/en.lproj/Localizable.strings:0
@@ -287,7 +288,7 @@ msgstr "Word gewicht"
 #: qt/me/preferences_dialog.py:52 qt/se/preferences_dialog.py:32
 #: cocoa/en.lproj/Localizable.strings:0
 msgid "Match similar words"
-msgstr "vergelijk gelijkwaardige woorden"
+msgstr "Vergelijk gelijkwaardige woorden"
 
 #: qt/me/preferences_dialog.py:54 qt/pe/preferences_dialog.py:21
 #: qt/se/preferences_dialog.py:34 cocoa/en.lproj/Localizable.strings:0
@@ -307,7 +308,7 @@ msgstr "Verwijder lege folders tijdens weggooien of verplaatsen"
 #: qt/me/preferences_dialog.py:60 qt/pe/preferences_dialog.py:27
 #: qt/se/preferences_dialog.py:59 cocoa/en.lproj/Localizable.strings:0
 msgid "Ignore duplicates hardlinking to the same file"
-msgstr "negeer dubbelingen die hard gelinkt zijn aan het zelfde bestand"
+msgstr "Negeer dubbelingen die hard gelinkt zijn aan het zelfde bestand"
 
 #: qt/me/preferences_dialog.py:62 qt/pe/preferences_dialog.py:29
 #: qt/se/preferences_dialog.py:62 cocoa/en.lproj/Localizable.strings:0
@@ -633,7 +634,7 @@ msgstr "Folder selectie venster"
 
 #: cocoa/en.lproj/Localizable.strings:0
 msgid "Font Size:"
-msgstr "Font grote:"
+msgstr "Grootte lettertype:"
 
 #: cocoa/en.lproj/Localizable.strings:0
 msgid "Hide dupeGuru"
@@ -944,3 +945,43 @@ msgstr "Algemeen"
 #: qt\preferences_dialog.py:286
 msgid "Display"
 msgstr "Scherm"
+
+#: qt\se\preferences_dialog.py:70
+msgid "Partially hash files bigger than"
+msgstr ""
+
+#: qt\se\preferences_dialog.py:80
+msgid "MB"
+msgstr ""
+
+#: qt\preferences_dialog.py:163
+msgid "Use native OS dialogs"
+msgstr ""
+
+#: qt\preferences_dialog.py:166
+msgid ""
+"For actions such as file/folder selection use the OS native dialogs.\n"
+"Some native dialogs have limited functionality."
+msgstr ""
+
+#: qt\se\preferences_dialog.py:68
+msgid "Ignore files larger than"
+msgstr ""
+
+#: qt\app.py:135 qt\app.py:293
+msgid "Clear Cache"
+msgstr ""
+
+#: qt\app.py:294
+msgid ""
+"Do you really want to clear the cache? This will remove all cached file "
+"hashes and picture analysis."
+msgstr ""
+
+#: qt\app.py:299
+msgid "Cache cleared."
+msgstr ""
+
+#: qt\preferences_dialog.py:173
+msgid "Use dark style"
+msgstr ""

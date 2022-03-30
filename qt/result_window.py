@@ -24,7 +24,7 @@ from PyQt5.QtWidgets import (
 )
 
 from hscommon.trans import trget
-from qtlib.util import moveToScreenCenter, horizontalWrap, createActions
+from qtlib.util import move_to_screen_center, horizontal_wrap, create_actions
 from qtlib.search_edit import SearchEdit
 
 from core.app import AppMode
@@ -44,9 +44,9 @@ class ResultWindow(QMainWindow):
         self.app = app
         self.specific_actions = set()
         self._setupUi()
-        if app.model.app_mode == AppMode.Picture:
+        if app.model.app_mode == AppMode.PICTURE:
             MODEL_CLASS = ResultsModelPicture
-        elif app.model.app_mode == AppMode.Music:
+        elif app.model.app_mode == AppMode.MUSIC:
             MODEL_CLASS = ResultsModelMusic
         else:
             MODEL_CLASS = ResultsModelStandard
@@ -204,7 +204,7 @@ class ResultWindow(QMainWindow):
                 self.app.invokeCustomCommand,
             ),
         ]
-        createActions(ACTIONS, self)
+        create_actions(ACTIONS, self)
         self.actionDelta.setCheckable(True)
         self.actionPowerMarker.setCheckable(True)
 
@@ -295,9 +295,7 @@ class ResultWindow(QMainWindow):
         if menu.actions():
             menu.clear()
         self._column_actions = []
-        for index, (display, visible) in enumerate(
-            self.app.model.result_table.columns.menu_items()
-        ):
+        for index, (display, visible) in enumerate(self.app.model.result_table._columns.menu_items()):
             action = menu.addAction(display)
             action.setCheckable(True)
             action.setChecked(visible)
@@ -308,21 +306,21 @@ class ResultWindow(QMainWindow):
         action.item_index = -1
 
         # Action menu
-        actionMenu = QMenu(tr("Actions"), menubar)
-        actionMenu.addAction(self.actionDeleteMarked)
-        actionMenu.addAction(self.actionMoveMarked)
-        actionMenu.addAction(self.actionCopyMarked)
-        actionMenu.addAction(self.actionRemoveMarked)
-        actionMenu.addSeparator()
-        actionMenu.addAction(self.actionRemoveSelected)
-        actionMenu.addAction(self.actionIgnoreSelected)
-        actionMenu.addAction(self.actionMakeSelectedReference)
-        actionMenu.addSeparator()
-        actionMenu.addAction(self.actionOpenSelected)
-        actionMenu.addAction(self.actionRevealSelected)
-        actionMenu.addAction(self.actionInvokeCustomCommand)
-        actionMenu.addAction(self.actionRenameSelected)
-        self.actionActions.setMenu(actionMenu)
+        action_menu = QMenu(tr("Actions"), menubar)
+        action_menu.addAction(self.actionDeleteMarked)
+        action_menu.addAction(self.actionMoveMarked)
+        action_menu.addAction(self.actionCopyMarked)
+        action_menu.addAction(self.actionRemoveMarked)
+        action_menu.addSeparator()
+        action_menu.addAction(self.actionRemoveSelected)
+        action_menu.addAction(self.actionIgnoreSelected)
+        action_menu.addAction(self.actionMakeSelectedReference)
+        action_menu.addSeparator()
+        action_menu.addAction(self.actionOpenSelected)
+        action_menu.addAction(self.actionRevealSelected)
+        action_menu.addAction(self.actionInvokeCustomCommand)
+        action_menu.addAction(self.actionRenameSelected)
+        self.actionActions.setMenu(action_menu)
         self.actionsButton.setMenu(self.actionActions.menu())
 
     def _setupUi(self):
@@ -338,7 +336,7 @@ class ResultWindow(QMainWindow):
         self.deltaValuesCheckBox = QCheckBox(tr("Delta Values"))
         self.searchEdit = SearchEdit()
         self.searchEdit.setMaximumWidth(300)
-        self.horizontalLayout = horizontalWrap(
+        self.horizontalLayout = horizontal_wrap(
             [
                 self.actionsButton,
                 self.detailsButton,
@@ -381,17 +379,17 @@ class ResultWindow(QMainWindow):
                 # moves to center of closest screen if partially off screen
                 frame = self.frameGeometry()
                 if QDesktopWidget().screenNumber(self) == -1:
-                    moveToScreenCenter(self)
+                    move_to_screen_center(self)
                 elif QDesktopWidget().availableGeometry(self).contains(frame) is False:
                     frame.moveCenter(QDesktopWidget().availableGeometry(self).center())
                     self.move(frame.topLeft())
             else:
-                moveToScreenCenter(self)
+                move_to_screen_center(self)
 
     # --- Private
     def _update_column_actions_status(self):
         # Update menu checked state
-        menu_items = self.app.model.result_table.columns.menu_items()
+        menu_items = self.app.model.result_table._columns.menu_items()
         for action, (display, visible) in zip(self._column_actions, menu_items):
             action.setChecked(visible)
 
@@ -485,16 +483,16 @@ class ResultWindow(QMainWindow):
     def columnToggled(self, action):
         index = action.item_index
         if index == -1:
-            self.app.model.result_table.columns.reset_to_defaults()
+            self.app.model.result_table._columns.reset_to_defaults()
             self._update_column_actions_status()
         else:
-            visible = self.app.model.result_table.columns.toggle_menu_item(index)
+            visible = self.app.model.result_table._columns.toggle_menu_item(index)
             action.setChecked(visible)
 
     def contextMenuEvent(self, event):
         self.actionActions.menu().exec_(event.globalPos())
 
-    def resultsDoubleClicked(self, modelIndex):
+    def resultsDoubleClicked(self, model_index):
         self.app.model.open_selected()
 
     def resultsSpacePressed(self):

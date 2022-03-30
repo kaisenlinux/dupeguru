@@ -12,6 +12,7 @@ from PyQt5.QtWidgets import QDockWidget
 from hscommon.trans import trget
 from hscommon.util import tryint
 from hscommon.plat import ISWINDOWS
+from core.util import executable_folder
 
 from os import path as op
 
@@ -20,23 +21,25 @@ tr = trget("qtlib")
 
 def get_langnames():
     return {
-        "en": tr("English"),
-        "fr": tr("French"),
+        "cs": tr("Czech"),
         "de": tr("German"),
         "el": tr("Greek"),
-        "zh_CN": tr("Chinese (Simplified)"),
-        "cs": tr("Czech"),
-        "it": tr("Italian"),
+        "en": tr("English"),
+        "es": tr("Spanish"),
+        "fr": tr("French"),
         "hy": tr("Armenian"),
+        "it": tr("Italian"),
+        "ja": tr("Japanese"),
         "ko": tr("Korean"),
-        "ru": tr("Russian"),
-        "uk": tr("Ukrainian"),
+        "ms": tr("Malay"),
         "nl": tr("Dutch"),
         "pl_PL": tr("Polish"),
         "pt_BR": tr("Brazilian"),
-        "es": tr("Spanish"),
+        "ru": tr("Russian"),
+        "tr": tr("Turkish"),
+        "uk": tr("Ukrainian"),
         "vi": tr("Vietnamese"),
-        "ja": tr("Japanese"),
+        "zh_CN": tr("Chinese (Simplified)"),
     }
 
 
@@ -67,18 +70,25 @@ def adjust_after_deserialization(v):
     return v
 
 
-def createQSettings():
+def create_qsettings():
     # Create a QSettings instance with the correct arguments.
-    # On windows use an ini file in the AppDataLocation instead of registry if possible as it
-    # makes it easier for a user to clear it out when there are issues.
-    if ISWINDOWS:
-        Locations = QStandardPaths.standardLocations(QStandardPaths.AppDataLocation)
-        if Locations:
-            return QSettings(op.join(Locations[0], "settings.ini"), QSettings.IniFormat)
+    config_location = op.join(executable_folder(), "settings.ini")
+    if op.isfile(config_location):
+        settings = QSettings(config_location, QSettings.IniFormat)
+        settings.setValue("Portable", True)
+    elif ISWINDOWS:
+        # On windows use an ini file in the AppDataLocation instead of registry if possible as it
+        # makes it easier for a user to clear it out when there are issues.
+        locations = QStandardPaths.standardLocations(QStandardPaths.AppDataLocation)
+        if locations:
+            settings = QSettings(op.join(locations[0], "settings.ini"), QSettings.IniFormat)
         else:
-            return QSettings()
+            settings = QSettings()
+        settings.setValue("Portable", False)
     else:
-        return QSettings()
+        settings = QSettings()
+        settings.setValue("Portable", False)
+    return settings
 
 
 # About QRect conversion:
@@ -92,9 +102,10 @@ class Preferences(QObject):
     def __init__(self):
         QObject.__init__(self)
         self.reset()
-        self._settings = createQSettings()
+        self._settings = create_qsettings()
 
-    def _load_values(self, settings, get):
+    def _load_values(self, settings):
+        # Implemented in subclasses
         pass
 
     def get_rect(self, name, default=None):
@@ -121,9 +132,11 @@ class Preferences(QObject):
         self._load_values(self._settings)
 
     def reset(self):
+        # Implemented in subclasses
         pass
 
-    def _save_values(self, settings, set_):
+    def _save_values(self, settings):
+        # Implemented in subclasses
         pass
 
     def save(self):
@@ -132,8 +145,8 @@ class Preferences(QObject):
 
     def set_rect(self, name, r):
         if isinstance(r, QRect):
-            rectAsList = [r.x(), r.y(), r.width(), r.height()]
-            self.set_value(name, rectAsList)
+            rect_as_list = [r.x(), r.y(), r.width(), r.height()]
+            self.set_value(name, rect_as_list)
 
     def set_value(self, name, value):
         self._settings.setValue(name, normalize_for_serialization(value))
@@ -147,8 +160,8 @@ class Preferences(QObject):
         d = 1 if isinstance(widget, QDockWidget) and not widget.isFloating() else 0
         area = widget.parent.dockWidgetArea(widget) if d else 0
         r = widget.geometry()
-        rectAsList = [r.x(), r.y(), r.width(), r.height()]
-        self.set_value(name, [m, d, area] + rectAsList)
+        rect_as_list = [r.x(), r.y(), r.width(), r.height()]
+        self.set_value(name, [m, d, area] + rect_as_list)
 
     def restoreGeometry(self, name, widget):
         geometry = self.get_value(name)
