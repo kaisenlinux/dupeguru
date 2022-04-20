@@ -1,3 +1,9 @@
+dupeguru (4.2.1-2kaisen) kaisen-packages; urgency=medium
+
+  * Rebuilt to remove python 3.10 dependancy
+
+ -- Kevin Chevreuil - Kaisen <kaisen@kaisenlinux.org>  Wed, 20 Apr 2022 00:50:32 +0100
+
 dupeguru (4.2.1-1kaisen) kaisen-packages; urgency=medium
 
   * Import new upstream release
