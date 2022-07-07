@@ -14,9 +14,8 @@ from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import QApplication
 
 from hscommon.trans import install_gettext_trans_under_qt
-from qtlib.error_report_dialog import install_excepthook
-from qtlib.util import setup_qt_logging
-from qtlib.preferences import create_qsettings
+from qt.error_report_dialog import install_excepthook
+from qt.util import setup_qt_logging, create_qsettings
 from qt import dg_rc  # noqa: F401
 from qt.platform import BASE_PATH
 from core import __version__, __appname__
@@ -71,10 +70,10 @@ def main():
     # has been installed
     from qt.app import DupeGuru
 
-    app.setWindowIcon(QIcon(QPixmap(":/{0}".format(DupeGuru.LOGO_NAME))))
+    app.setWindowIcon(QIcon(QPixmap(f":/{DupeGuru.LOGO_NAME}")))
     global dgapp
     dgapp = DupeGuru()
-    install_excepthook("https://github.com/hsoft/dupeguru/issues")
+    install_excepthook("https://github.com/arsenetar/dupeguru/issues")
     result = app.exec()
     # I was getting weird crashes when quitting under Windows, and manually deleting main app
     # references with gc.collect() in between seems to fix the problem.

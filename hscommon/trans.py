@@ -11,16 +11,18 @@
 
 import locale
 import logging
+import os
 import os.path as op
+from typing import Callable, Union
 
-from .plat import ISLINUX
+from hscommon.plat import ISLINUX
 
 _trfunc = None
 _trget = None
 installed_lang = None
 
 
-def tr(s, context=None):
+def tr(s: str, context: Union[str, None] = None) -> str:
     if _trfunc is None:
         return s
     else:
@@ -30,7 +32,7 @@ def tr(s, context=None):
             return _trfunc(s)
 
 
-def trget(domain):
+def trget(domain: str) -> Callable[[str], str]:
     # Returns a tr() function for the specified domain.
     if _trget is None:
         return lambda s: tr(s, domain)
@@ -38,14 +40,16 @@ def trget(domain):
         return _trget(domain)
 
 
-def set_tr(new_tr, new_trget=None):
+def set_tr(
+    new_tr: Callable[[str, Union[str, None]], str], new_trget: Union[Callable[[str], Callable[[str], str]], None] = None
+) -> None:
     global _trfunc, _trget
     _trfunc = new_tr
     if new_trget is not None:
         _trget = new_trget
 
 
-def get_locale_name(lang):
+def get_locale_name(lang: str) -> Union[str, None]:
     # Removed old conversion code as windows seems to support these
     LANG2LOCALENAME = {
         "cs": "cs_CZ",
@@ -77,7 +81,7 @@ def get_locale_name(lang):
 
 
 # --- Qt
-def install_qt_trans(lang=None):
+def install_qt_trans(lang: str = None) -> None:
     from PyQt5.QtCore import QCoreApplication, QTranslator, QLocale
 
     if not lang:
@@ -97,27 +101,29 @@ def install_qt_trans(lang=None):
     qtr2.load(":/%s" % lang)
     QCoreApplication.installTranslator(qtr2)
 
-    def qt_tr(s, context="core"):
+    def qt_tr(s: str, context: Union[str, None] = "core") -> str:
+        if context is None:
+            context = "core"
         return str(QCoreApplication.translate(context, s, None))
 
     set_tr(qt_tr)
 
 
 # --- gettext
-def install_gettext_trans(base_folder, lang):
+def install_gettext_trans(base_folder: os.PathLike, lang: str) -> None:
     import gettext
 
-    def gettext_trget(domain):
+    def gettext_trget(domain: str) -> Callable[[str], str]:
         if not lang:
             return lambda s: s
         try:
             return gettext.translation(domain, localedir=base_folder, languages=[lang]).gettext
-        except IOError:
+        except OSError:
             return lambda s: s
 
     default_gettext = gettext_trget("core")
 
-    def gettext_tr(s, context=None):
+    def gettext_tr(s: str, context: Union[str, None] = None) -> str:
         if not context:
             return default_gettext(s)
         else:
@@ -129,19 +135,7 @@ def install_gettext_trans(base_folder, lang):
     installed_lang = lang
 
 
-def install_gettext_trans_under_cocoa():
-    from cocoa import proxy
-
-    res_folder = proxy.getResourcePath()
-    base_folder = op.join(res_folder, "locale")
-    current_lang = proxy.systemLang()
-    install_gettext_trans(base_folder, current_lang)
-    localename = get_locale_name(current_lang)
-    if localename is not None:
-        locale.setlocale(locale.LC_ALL, localename)
-
-
-def install_gettext_trans_under_qt(base_folder, lang=None):
+def install_gettext_trans_under_qt(base_folder: os.PathLike, lang: str = None) -> None:
     # So, we install the gettext locale, great, but we also should try to install qt_*.qm if
     # available so that strings that are inside Qt itself over which I have no control are in the
     # right language.

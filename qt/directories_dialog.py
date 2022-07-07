@@ -27,12 +27,12 @@ from PyQt5.QtGui import QPixmap, QIcon
 
 from hscommon.trans import trget
 from core.app import AppMode
-from qtlib.radio_box import RadioBox
-from qtlib.recent import Recent
-from qtlib.util import move_to_screen_center, create_actions
+from qt.radio_box import RadioBox
+from qt.recent import Recent
+from qt.util import move_to_screen_center, create_actions
 
-from . import platform
-from .directories_model import DirectoriesModel, DirectoriesDelegate
+from qt import platform
+from qt.directories_model import DirectoriesModel, DirectoriesDelegate
 
 tr = trget("ui")
 
@@ -347,7 +347,7 @@ class DirectoriesDialog(QMainWindow):
         destination, chosen_filter = QFileDialog.getSaveFileName(self, title, "", files)
         if destination:
             if not destination.endswith(".dupegurudirs"):
-                destination = "{}.dupegurudirs".format(destination)
+                destination = f"{destination}.dupegurudirs"
             self.app.model.save_directories_as(destination)
 
     def scanButtonClicked(self):
@@ -356,7 +356,7 @@ class DirectoriesDialog(QMainWindow):
             msg = tr("You have unsaved results, do you really want to continue?")
             if not self.app.confirm(title, msg):
                 return
-        self.app.model.start_scanning()
+        self.app.model.start_scanning(self.app.prefs.profile_scan)
 
     def scanTypeChanged(self, index):
         scan_options = self.app.model.SCANNER_CLASS.get_scan_options()

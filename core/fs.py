@@ -11,15 +11,26 @@
 # resulting needless complexity and memory usage. It's been a while since I wanted to do that fork,
 # and I'm doing it now.
 
-import hashlib
+import os
+
 from math import floor
 import logging
 import sqlite3
 from threading import Lock
-from typing import Any
+from typing import Any, AnyStr, Union, Callable
 
-from hscommon.path import Path
+from pathlib import Path
 from hscommon.util import nonone, get_file_ext
+
+hasher: Callable
+try:
+    import xxhash
+
+    hasher = xxhash.xxh128
+except ImportError:
+    import hashlib
+
+    hasher = hashlib.md5
 
 __all__ = [
     "File",
@@ -40,7 +51,7 @@ NOT_SET = object()
 # CPU.
 CHUNK_SIZE = 1024 * 1024  # 1 MiB
 
-# Minimum size below which partial hashes don't need to be computed
+# Minimum size below which partial hashing is not used
 MIN_FILE_SIZE = 3 * CHUNK_SIZE  # 3MiB, because we take 3 samples
 
 
@@ -83,9 +94,11 @@ class OperationError(FSError):
 
 
 class FilesDB:
+    schema_version = 1
+    schema_version_description = "Changed from md5 to xxhash if available."
 
-    create_table_query = "CREATE TABLE IF NOT EXISTS files (path TEXT PRIMARY KEY, size INTEGER, mtime_ns INTEGER, entry_dt DATETIME, md5 BLOB, md5partial BLOB)"
-    drop_table_query = "DROP TABLE files;"
+    create_table_query = "CREATE TABLE IF NOT EXISTS files (path TEXT PRIMARY KEY, size INTEGER, mtime_ns INTEGER, entry_dt DATETIME, digest BLOB, digest_partial BLOB, digest_samples BLOB)"
+    drop_table_query = "DROP TABLE IF EXISTS files;"
     select_query = "SELECT {key} FROM files WHERE path=:path AND size=:size and mtime_ns=:mtime_ns"
     insert_query = """
         INSERT INTO files (path, size, mtime_ns, entry_dt, {key}) VALUES (:path, :size, :mtime_ns, datetime('now'), :value)
@@ -97,24 +110,37 @@ class FilesDB:
         self.cur = None
         self.lock = None
 
-    def connect(self, path):
-        # type: (str, ) -> None
-
+    def connect(self, path: Union[AnyStr, os.PathLike]) -> None:
         self.conn = sqlite3.connect(path, check_same_thread=False)
         self.cur = self.conn.cursor()
-        self.cur.execute(self.create_table_query)
         self.lock = Lock()
+        self._check_upgrade()
 
-    def clear(self):
-        # type: () -> None
+    def _check_upgrade(self) -> None:
+        with self.lock:
+            has_schema = self.cur.execute(
+                "SELECT NAME FROM sqlite_master WHERE type='table' AND name='schema_version'"
+            ).fetchall()
+            version = None
+            if has_schema:
+                version = self.cur.execute("SELECT version FROM schema_version ORDER BY version DESC").fetchone()[0]
+            else:
+                self.cur.execute("CREATE TABLE schema_version (version int PRIMARY KEY, description TEXT)")
+            if version != self.schema_version:
+                self.cur.execute(self.drop_table_query)
+                self.cur.execute(
+                    "INSERT OR REPLACE INTO schema_version VALUES (:version, :description)",
+                    {"version": self.schema_version, "description": self.schema_version_description},
+                )
+            self.cur.execute(self.create_table_query)
+            self.conn.commit()
 
+    def clear(self) -> None:
         with self.lock:
             self.cur.execute(self.drop_table_query)
             self.cur.execute(self.create_table_query)
 
-    def get(self, path, key):
-        # type: (Path, str) -> bytes
-
+    def get(self, path: Path, key: str) -> Union[bytes, None]:
         stat = path.stat()
         size = stat.st_size
         mtime_ns = stat.st_mtime_ns
@@ -128,9 +154,7 @@ class FilesDB:
 
         return None
 
-    def put(self, path, key, value):
-        # type: (Path, str, Any) -> None
-
+    def put(self, path: Path, key: str, value: Any) -> None:
         stat = path.stat()
         size = stat.st_size
         mtime_ns = stat.st_mtime_ns
@@ -141,15 +165,11 @@ class FilesDB:
                 {"path": str(path), "size": size, "mtime_ns": mtime_ns, "value": value},
             )
 
-    def commit(self):
-        # type: () -> None
-
+    def commit(self) -> None:
         with self.lock:
             self.conn.commit()
 
-    def close(self):
-        # type: () -> None
-
+    def close(self) -> None:
         with self.lock:
             self.cur.close()
             self.conn.close()
@@ -161,19 +181,24 @@ filesdb = FilesDB()  # Singleton
 class File:
     """Represents a file and holds metadata to be used for scanning."""
 
-    INITIAL_INFO = {"size": 0, "mtime": 0, "md5": b"", "md5partial": b"", "md5samples": b""}
+    INITIAL_INFO = {"size": 0, "mtime": 0, "digest": b"", "digest_partial": b"", "digest_samples": b""}
     # Slots for File make us save quite a bit of memory. In a memory test I've made with a lot of
     # files, I saved 35% memory usage with "unread" files (no _read_info() call) and gains become
     # even greater when we take into account read attributes (70%!). Yeah, it's worth it.
     __slots__ = ("path", "is_ref", "words") + tuple(INITIAL_INFO.keys())
 
     def __init__(self, path):
-        self.path = path
         for attrname in self.INITIAL_INFO:
             setattr(self, attrname, NOT_SET)
+        if type(path) is os.DirEntry:
+            self.path = Path(path.path)
+            self.size = nonone(path.stat().st_size, 0)
+            self.mtime = nonone(path.stat().st_mtime, 0)
+        else:
+            self.path = path
 
     def __repr__(self):
-        return "<{} {}>".format(self.__class__.__name__, str(self.path))
+        return f"<{self.__class__.__name__} {str(self.path)}>"
 
     def __getattribute__(self, attrname):
         result = object.__getattribute__(self, attrname)
@@ -187,32 +212,51 @@ class File:
                 result = self.INITIAL_INFO[attrname]
         return result
 
-    def _calc_md5(self):
+    def _calc_digest(self):
         # type: () -> bytes
 
         with self.path.open("rb") as fp:
-            md5 = hashlib.md5()
+            file_hash = hasher()
             # The goal here is to not run out of memory on really big files. However, the chunk
             # size has to be large enough so that the python loop isn't too costly in terms of
             # CPU.
             CHUNK_SIZE = 1024 * 1024  # 1 mb
             filedata = fp.read(CHUNK_SIZE)
             while filedata:
-                md5.update(filedata)
+                file_hash.update(filedata)
                 filedata = fp.read(CHUNK_SIZE)
-            return md5.digest()
+            return file_hash.digest()
 
-    def _calc_md5partial(self):
+    def _calc_digest_partial(self):
         # type: () -> bytes
 
-        # This offset is where we should start reading the file to get a partial md5
+        # This offset is where we should start reading the file to get a partial hash
         # For audio file, it should be where audio data starts
         offset, size = (0x4000, 0x4000)
 
         with self.path.open("rb") as fp:
             fp.seek(offset)
-            partialdata = fp.read(size)
-            return hashlib.md5(partialdata).digest()
+            partial_data = fp.read(size)
+            return hasher(partial_data).digest()
+
+    def _calc_digest_samples(self) -> bytes:
+        size = self.size
+        with self.path.open("rb") as fp:
+            # Chunk at 25% of the file
+            fp.seek(floor(size * 25 / 100), 0)
+            file_data = fp.read(CHUNK_SIZE)
+            file_hash = hasher(file_data)
+
+            # Chunk at 60% of the file
+            fp.seek(floor(size * 60 / 100), 0)
+            file_data = fp.read(CHUNK_SIZE)
+            file_hash.update(file_data)
+
+            # Last chunk of the file
+            fp.seek(-CHUNK_SIZE, 2)
+            file_data = fp.read(CHUNK_SIZE)
+            file_hash.update(file_data)
+            return file_hash.digest()
 
     def _read_info(self, field):
         # print(f"_read_info({field}) for {self}")
@@ -220,48 +264,35 @@ class File:
             stats = self.path.stat()
             self.size = nonone(stats.st_size, 0)
             self.mtime = nonone(stats.st_mtime, 0)
-        elif field == "md5partial":
+        elif field == "digest_partial":
             try:
-                self.md5partial = filesdb.get(self.path, "md5partial")
-                if self.md5partial is None:
-                    self.md5partial = self._calc_md5partial()
-                    filesdb.put(self.path, "md5partial", self.md5partial)
+                self.digest_partial = filesdb.get(self.path, "digest_partial")
+                if self.digest_partial is None:
+                    self.digest_partial = self._calc_digest_partial()
+                    filesdb.put(self.path, "digest_partial", self.digest_partial)
             except Exception as e:
-                logging.warning("Couldn't get md5partial for %s: %s", self.path, e)
-        elif field == "md5":
+                logging.warning("Couldn't get digest_partial for %s: %s", self.path, e)
+        elif field == "digest":
             try:
-                self.md5 = filesdb.get(self.path, "md5")
-                if self.md5 is None:
-                    self.md5 = self._calc_md5()
-                    filesdb.put(self.path, "md5", self.md5)
+                self.digest = filesdb.get(self.path, "digest")
+                if self.digest is None:
+                    self.digest = self._calc_digest()
+                    filesdb.put(self.path, "digest", self.digest)
             except Exception as e:
-                logging.warning("Couldn't get md5 for %s: %s", self.path, e)
-        elif field == "md5samples":
+                logging.warning("Couldn't get digest for %s: %s", self.path, e)
+        elif field == "digest_samples":
+            size = self.size
+            # Might as well hash such small files entirely.
+            if size <= MIN_FILE_SIZE:
+                setattr(self, field, self.digest)
+                return
             try:
-                with self.path.open("rb") as fp:
-                    size = self.size
-                    # Might as well hash such small files entirely.
-                    if size <= MIN_FILE_SIZE:
-                        setattr(self, field, self.md5)
-                        return
-
-                    # Chunk at 25% of the file
-                    fp.seek(floor(size * 25 / 100), 0)
-                    filedata = fp.read(CHUNK_SIZE)
-                    md5 = hashlib.md5(filedata)
-
-                    # Chunk at 60% of the file
-                    fp.seek(floor(size * 60 / 100), 0)
-                    filedata = fp.read(CHUNK_SIZE)
-                    md5.update(filedata)
-
-                    # Last chunk of the file
-                    fp.seek(-CHUNK_SIZE, 2)
-                    filedata = fp.read(CHUNK_SIZE)
-                    md5.update(filedata)
-                    setattr(self, field, md5.digest())
+                self.digest_samples = filesdb.get(self.path, "digest_samples")
+                if self.digest_samples is None:
+                    self.digest_samples = self._calc_digest_samples()
+                    filesdb.put(self.path, "digest_samples", self.digest_samples)
             except Exception as e:
-                logging.error(f"Error computing md5samples: {e}")
+                logging.warning(f"Couldn't get digest_samples for {self.path}: {e}")
 
     def _read_all_info(self, attrnames=None):
         """Cache all possible info.
@@ -277,17 +308,17 @@ class File:
     @classmethod
     def can_handle(cls, path):
         """Returns whether this file wrapper class can handle ``path``."""
-        return not path.islink() and path.isfile()
+        return not path.is_symlink() and path.is_file()
 
     def rename(self, newname):
         if newname == self.name:
             return
-        destpath = self.path.parent()[newname]
+        destpath = self.path.parent.joinpath(newname)
         if destpath.exists():
-            raise AlreadyExistsError(newname, self.path.parent())
+            raise AlreadyExistsError(newname, self.path.parent)
         try:
             self.path.rename(destpath)
-        except EnvironmentError:
+        except OSError:
             raise OperationError(self)
         if not destpath.exists():
             raise OperationError(self)
@@ -308,19 +339,20 @@ class File:
 
     @property
     def folder_path(self):
-        return self.path.parent()
+        return self.path.parent
 
 
 class Folder(File):
     """A wrapper around a folder path.
 
-    It has the size/md5 info of a File, but its value is the sum of its subitems.
+    It has the size/digest info of a File, but its value is the sum of its subitems.
     """
 
     __slots__ = File.__slots__ + ("_subfolders",)
 
     def __init__(self, path):
         File.__init__(self, path)
+        self.size = NOT_SET
         self._subfolders = None
 
     def _all_items(self):
@@ -335,31 +367,31 @@ class Folder(File):
             self.size = size
             stats = self.path.stat()
             self.mtime = nonone(stats.st_mtime, 0)
-        elif field in {"md5", "md5partial", "md5samples"}:
+        elif field in {"digest", "digest_partial", "digest_samples"}:
             # What's sensitive here is that we must make sure that subfiles'
-            # md5 are always added up in the same order, but we also want a
-            # different md5 if a file gets moved in a different subdirectory.
+            # digest are always added up in the same order, but we also want a
+            # different digest if a file gets moved in a different subdirectory.
 
-            def get_dir_md5_concat():
+            def get_dir_digest_concat():
                 items = self._all_items()
                 items.sort(key=lambda f: f.path)
-                md5s = [getattr(f, field) for f in items]
-                return b"".join(md5s)
+                digests = [getattr(f, field) for f in items]
+                return b"".join(digests)
 
-            md5 = hashlib.md5(get_dir_md5_concat())
-            digest = md5.digest()
+            digest = hasher(get_dir_digest_concat()).digest()
             setattr(self, field, digest)
 
     @property
     def subfolders(self):
         if self._subfolders is None:
-            subfolders = [p for p in self.path.listdir() if not p.islink() and p.isdir()]
+            with os.scandir(self.path) as iter:
+                subfolders = [p for p in iter if not p.is_symlink() and p.is_dir()]
             self._subfolders = [self.__class__(p) for p in subfolders]
         return self._subfolders
 
     @classmethod
     def can_handle(cls, path):
-        return not path.islink() and path.isdir()
+        return not path.is_symlink() and path.is_dir()
 
 
 def get_file(path, fileclasses=[File]):
@@ -384,10 +416,11 @@ def get_files(path, fileclasses=[File]):
     assert all(issubclass(fileclass, File) for fileclass in fileclasses)
     try:
         result = []
-        for path in path.listdir():
-            file = get_file(path, fileclasses=fileclasses)
-            if file is not None:
-                result.append(file)
+        with os.scandir(path) as iter:
+            for item in iter:
+                file = get_file(item, fileclasses=fileclasses)
+                if file is not None:
+                    result.append(file)
         return result
-    except EnvironmentError:
+    except OSError:
         raise InvalidPath(path)

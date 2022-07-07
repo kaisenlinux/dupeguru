@@ -43,7 +43,7 @@ class Criterion:
 
     @property
     def display(self):
-        return "{} ({})".format(self.category.NAME, self.display_value)
+        return f"{self.category.NAME} ({self.display_value})"
 
 
 class ValueListCategory(CriterionCategory):
@@ -82,10 +82,12 @@ class FolderCategory(ValueListCategory):
 
     def sort_key(self, dupe, crit_value):
         value = self.extract_value(dupe)
-        if value[: len(crit_value)] == crit_value:
-            return 0
-        else:
+        # This is instead of using is_relative_to() which was added in py 3.9
+        try:
+            value.relative_to(crit_value)
+        except ValueError:
             return 1
+        return 0
 
 
 class FilenameCategory(CriterionCategory):

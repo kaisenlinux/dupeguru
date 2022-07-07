@@ -6,8 +6,9 @@
 
 from pathlib import Path
 import re
+from typing import Callable, Dict, Union
 
-from .build import read_changelog_file, filereplace
+from hscommon.build import read_changelog_file, filereplace
 from sphinx.cmd.build import build_main as sphinx_build
 
 CHANGELOG_FORMAT = """
@@ -18,25 +19,25 @@ CHANGELOG_FORMAT = """
 """
 
 
-def tixgen(tixurl):
+def tixgen(tixurl: str) -> Callable[[str], str]:
     """This is a filter *generator*. tixurl is a url pattern for the tix with a {0} placeholder
     for the tix #
     """
     urlpattern = tixurl.format("\\1")  # will be replaced buy the content of the first group in re
     R = re.compile(r"#(\d+)")
-    repl = "`#\\1 <{}>`__".format(urlpattern)
+    repl = f"`#\\1 <{urlpattern}>`__"
     return lambda text: R.sub(repl, text)
 
 
 def gen(
-    basepath,
-    destpath,
-    changelogpath,
-    tixurl,
-    confrepl=None,
-    confpath=None,
-    changelogtmpl=None,
-):
+    basepath: Path,
+    destpath: Path,
+    changelogpath: Path,
+    tixurl: str,
+    confrepl: Union[Dict[str, str], None] = None,
+    confpath: Union[Path, None] = None,
+    changelogtmpl: Union[Path, None] = None,
+) -> None:
     """Generate sphinx docs with all bells and whistles.
 
     basepath: The base sphinx source path.

@@ -14,29 +14,29 @@ from PyQt5.QtWidgets import QApplication, QFileDialog, QDialog, QMessageBox, QSt
 from hscommon.trans import trget
 from hscommon import desktop, plat
 
-from qtlib.about_box import AboutBox
-from qtlib.recent import Recent
-from qtlib.util import create_actions
-from qtlib.progress_window import ProgressWindow
+from qt.about_box import AboutBox
+from qt.recent import Recent
+from qt.util import create_actions
+from qt.progress_window import ProgressWindow
 
 from core.app import AppMode, DupeGuru as DupeGuruModel
 import core.pe.photo
-from . import platform
-from .preferences import Preferences
-from .result_window import ResultWindow
-from .directories_dialog import DirectoriesDialog
-from .problem_dialog import ProblemDialog
-from .ignore_list_dialog import IgnoreListDialog
-from .exclude_list_dialog import ExcludeListDialog
-from .deletion_options import DeletionOptions
-from .se.details_dialog import DetailsDialog as DetailsDialogStandard
-from .me.details_dialog import DetailsDialog as DetailsDialogMusic
-from .pe.details_dialog import DetailsDialog as DetailsDialogPicture
-from .se.preferences_dialog import PreferencesDialog as PreferencesDialogStandard
-from .me.preferences_dialog import PreferencesDialog as PreferencesDialogMusic
-from .pe.preferences_dialog import PreferencesDialog as PreferencesDialogPicture
-from .pe.photo import File as PlatSpecificPhoto
-from .tabbed_window import TabBarWindow, TabWindow
+from qt import platform
+from qt.preferences import Preferences
+from qt.result_window import ResultWindow
+from qt.directories_dialog import DirectoriesDialog
+from qt.problem_dialog import ProblemDialog
+from qt.ignore_list_dialog import IgnoreListDialog
+from qt.exclude_list_dialog import ExcludeListDialog
+from qt.deletion_options import DeletionOptions
+from qt.se.details_dialog import DetailsDialog as DetailsDialogStandard
+from qt.me.details_dialog import DetailsDialog as DetailsDialogMusic
+from qt.pe.details_dialog import DetailsDialog as DetailsDialogPicture
+from qt.se.preferences_dialog import PreferencesDialog as PreferencesDialogStandard
+from qt.me.preferences_dialog import PreferencesDialog as PreferencesDialogMusic
+from qt.pe.preferences_dialog import PreferencesDialog as PreferencesDialogPicture
+from qt.pe.photo import File as PlatSpecificPhoto
+from qt.tabbed_window import TabBarWindow, TabWindow
 
 tr = trget("ui")
 
@@ -442,6 +442,6 @@ class DupeGuru(QObject):
     def select_dest_file(self, prompt, extension):
         files = tr("{} file (*.{})").format(extension.upper(), extension)
         destination, chosen_filter = QFileDialog.getSaveFileName(self.resultWindow, prompt, "", files)
-        if not destination.endswith(".{}".format(extension)):
-            destination = "{}.{}".format(destination, extension)
+        if not destination.endswith(f".{extension}"):
+            destination = f"{destination}.{extension}"
         return destination

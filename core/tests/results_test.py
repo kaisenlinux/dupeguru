@@ -12,10 +12,9 @@ from xml.etree import ElementTree as ET
 from pytest import raises
 from hscommon.testutil import eq_
 from hscommon.util import first
-
-from .. import engine
-from .base import NamedObject, GetTestGroups, DupeGuru
-from ..results import Results
+from core import engine
+from core.tests.base import NamedObject, GetTestGroups, DupeGuru
+from core.results import Results
 
 
 class TestCaseResultsEmpty:
@@ -337,7 +336,7 @@ class TestCaseResultsMarkings:
         def log_object(o):
             log.append(o)
             if o is self.objects[1]:
-                raise EnvironmentError("foobar")
+                raise OSError("foobar")
 
         log = []
         self.results.mark_all()
@@ -447,7 +446,7 @@ class TestCaseResultsXML:
         self.results.groups = self.groups
 
     def get_file(self, path):  # use this as a callback for load_from_xml
-        return [o for o in self.objects if o.path == path][0]
+        return [o for o in self.objects if str(o.path) == path][0]
 
     def test_save_to_xml(self):
         self.objects[0].is_ref = True
@@ -464,7 +463,7 @@ class TestCaseResultsXML:
         eq_(6, len(g1))
         eq_(3, len([c for c in g1 if c.tag == "file"]))
         eq_(3, len([c for c in g1 if c.tag == "match"]))
-        d1, d2, d3 = [c for c in g1 if c.tag == "file"]
+        d1, d2, d3 = (c for c in g1 if c.tag == "file")
         eq_(op.join("basepath", "foo bar"), d1.get("path"))
         eq_(op.join("basepath", "bar bleh"), d2.get("path"))
         eq_(op.join("basepath", "foo bleh"), d3.get("path"))
@@ -477,7 +476,7 @@ class TestCaseResultsXML:
         eq_(3, len(g2))
         eq_(2, len([c for c in g2 if c.tag == "file"]))
         eq_(1, len([c for c in g2 if c.tag == "match"]))
-        d1, d2 = [c for c in g2 if c.tag == "file"]
+        d1, d2 = (c for c in g2 if c.tag == "file")
         eq_(op.join("basepath", "ibabtu"), d1.get("path"))
         eq_(op.join("basepath", "ibabtu"), d2.get("path"))
         eq_("n", d1.get("is_ref"))

@@ -19,9 +19,9 @@ from PyQt5.QtWidgets import (
     QAbstractItemView,
 )
 
-from qtlib.util import move_to_screen_center
+from qt.util import move_to_screen_center
 from hscommon.trans import trget
-from .problem_table import ProblemTable
+from qt.problem_table import ProblemTable
 
 tr = trget("ui")
 

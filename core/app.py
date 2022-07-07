@@ -4,37 +4,39 @@
 # which should be included with this package. The terms are also available at
 # http://www.gnu.org/licenses/gpl-3.0.html
 
+import cProfile
+import datetime
 import os
 import os.path as op
 import logging
 import subprocess
 import re
 import shutil
+from pathlib import Path
 
 from send2trash import send2trash
 from hscommon.jobprogress import job
 from hscommon.notify import Broadcaster
-from hscommon.path import Path
 from hscommon.conflict import smart_move, smart_copy
 from hscommon.gui.progress_window import ProgressWindow
 from hscommon.util import delete_if_empty, first, escape, nonone, allsame
 from hscommon.trans import tr
 from hscommon import desktop
 
-from . import se, me, pe
-from .pe.photo import get_delta_dimensions
-from .util import cmp_value, fix_surrogate_encoding
-from . import directories, results, export, fs, prioritize
-from .ignore import IgnoreList
-from .exclude import ExcludeDict as ExcludeList
-from .scanner import ScanType
-from .gui.deletion_options import DeletionOptions
-from .gui.details_panel import DetailsPanel
-from .gui.directory_tree import DirectoryTree
-from .gui.ignore_list_dialog import IgnoreListDialog
-from .gui.exclude_list_dialog import ExcludeListDialogCore
-from .gui.problem_dialog import ProblemDialog
-from .gui.stats_label import StatsLabel
+from core import se, me, pe
+from core.pe.photo import get_delta_dimensions
+from core.util import cmp_value, fix_surrogate_encoding
+from core import directories, results, export, fs, prioritize
+from core.ignore import IgnoreList
+from core.exclude import ExcludeDict as ExcludeList
+from core.scanner import ScanType
+from core.gui.deletion_options import DeletionOptions
+from core.gui.details_panel import DetailsPanel
+from core.gui.directory_tree import DirectoryTree
+from core.gui.ignore_list_dialog import IgnoreListDialog
+from core.gui.exclude_list_dialog import ExcludeListDialogCore
+from core.gui.problem_dialog import ProblemDialog
+from core.gui.stats_label import StatsLabel
 
 HAD_FIRST_LAUNCH_PREFERENCE = "HadFirstLaunch"
 DEBUG_MODE_PREFERENCE = "DebugMode"
@@ -132,7 +134,7 @@ class DupeGuru(Broadcaster):
             logging.debug("Debug mode enabled")
         Broadcaster.__init__(self)
         self.view = view
-        self.appdata = desktop.special_folder_path(desktop.SpecialFolder.APPDATA, appname=self.NAME, portable=portable)
+        self.appdata = desktop.special_folder_path(desktop.SpecialFolder.APPDATA, portable=portable)
         if not op.exists(self.appdata):
             os.makedirs(self.appdata)
         self.app_mode = AppMode.STANDARD
@@ -248,7 +250,7 @@ class DupeGuru(Broadcaster):
             ref = group.ref
             linkfunc = os.link if use_hardlinks else os.symlink
             linkfunc(str(ref.path), str_path)
-        self.clean_empty_dirs(dupe.path.parent())
+        self.clean_empty_dirs(dupe.path.parent)
 
     def _create_file(self, path):
         # We add fs.Folder to fileclasses in case the file we're loading contains folder paths.
@@ -262,7 +264,7 @@ class DupeGuru(Broadcaster):
         try:
             f._read_all_info(attrnames=self.METADATA_TO_READ)
             return f
-        except EnvironmentError:
+        except OSError:
             return None
 
     def _get_export_data(self):
@@ -415,7 +417,7 @@ class DupeGuru(Broadcaster):
     def clean_empty_dirs(self, path):
         if self.options["clean_empty_dirs"]:
             while delete_if_empty(path, [".DS_Store"]):
-                path = path.parent()
+                path = path.parent
 
     def clear_picture_cache(self):
         try:
@@ -428,25 +430,25 @@ class DupeGuru(Broadcaster):
 
     def copy_or_move(self, dupe, copy: bool, destination: str, dest_type: DestType):
         source_path = dupe.path
-        location_path = first(p for p in self.directories if dupe.path in p)
+        location_path = first(p for p in self.directories if p in dupe.path.parents)
         dest_path = Path(destination)
         if dest_type in {DestType.RELATIVE, DestType.ABSOLUTE}:
             # no filename, no windows drive letter
-            source_base = source_path.remove_drive_letter().parent()
+            source_base = source_path.relative_to(source_path.anchor).parent
             if dest_type == DestType.RELATIVE:
-                source_base = source_base[location_path:]
-            dest_path = dest_path[source_base]
+                source_base = source_base.relative_to(location_path.relative_to(location_path.anchor))
+            dest_path = dest_path.joinpath(source_base)
         if not dest_path.exists():
-            dest_path.makedirs()
+            dest_path.mkdir(parents=True)
         # Add filename to dest_path. For file move/copy, it's not required, but for folders, yes.
-        dest_path = dest_path[source_path.name]
+        dest_path = dest_path.joinpath(source_path.name)
         logging.debug("Copy/Move operation from '%s' to '%s'", source_path, dest_path)
         # Raises an EnvironmentError if there's a problem
         if copy:
             smart_copy(source_path, dest_path)
         else:
             smart_move(source_path, dest_path)
-            self.clean_empty_dirs(source_path.parent())
+            self.clean_empty_dirs(source_path.parent)
 
     def copy_or_move_marked(self, copy):
         """Start an async move (or copy) job on marked duplicates.
@@ -553,9 +555,13 @@ class DupeGuru(Broadcaster):
                 # a workaround to make the damn thing work.
                 exepath, args = match.groups()
                 path, exename = op.split(exepath)
-                subprocess.Popen(exename + args, shell=True, cwd=path)
+                p = subprocess.Popen(exename + args, shell=True, cwd=path, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+                output = p.stdout.read()
+                logging.info("Custom command %s %s: %s", exename, args, output)
             else:
-                subprocess.Popen(dupe_cmd, shell=True)
+                p = subprocess.Popen(dupe_cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+                output = p.stdout.read()
+                logging.info("Custom command %s: %s", dupe_cmd, output)
 
     def load(self):
         """Load directory selection and ignore list from files in appdata.
@@ -780,7 +786,7 @@ class DupeGuru(Broadcaster):
         except OSError as e:
             self.view.show_message(tr("Couldn't write to file: {}").format(str(e)))
 
-    def start_scanning(self):
+    def start_scanning(self, profile_scan=False):
         """Starts an async job to scan for duplicates.
 
         Scans folders selected in :attr:`directories` and put the results in :attr:`results`
@@ -800,6 +806,9 @@ class DupeGuru(Broadcaster):
         self._results_changed()
 
         def do(j):
+            if profile_scan:
+                pr = cProfile.Profile()
+                pr.enable()
             j.set_progress(0, tr("Collecting files to scan"))
             if scanner.scan_type == ScanType.FOLDERS:
                 files = list(self.directories.get_folders(folderclass=se.fs.Folder, j=j))
@@ -810,6 +819,9 @@ class DupeGuru(Broadcaster):
             logging.info("Scanning %d files" % len(files))
             self.results.groups = scanner.get_dupe_groups(files, self.ignore_list, j)
             self.discarded_file_count = scanner.discarded_file_count
+            if profile_scan:
+                pr.disable()
+                pr.dump_stats(op.join(self.appdata, f"{datetime.datetime.now():%Y-%m-%d_%H-%M-%S}.profile"))
 
         self._start_job(JobType.SCAN, do)
 

@@ -8,11 +8,11 @@ from PyQt5.QtWidgets import QFormLayout
 from PyQt5.QtCore import Qt
 from hscommon.trans import trget
 from hscommon.plat import ISLINUX
-from qtlib.radio_box import RadioBox
+from qt.radio_box import RadioBox
 from core.scanner import ScanType
 from core.app import AppMode
 
-from ..preferences_dialog import PreferencesDialogBase
+from qt.preferences_dialog import PreferencesDialogBase
 
 tr = trget("ui")
 
@@ -34,8 +34,6 @@ class PreferencesDialog(PreferencesDialogBase):
             tr("Ignore duplicates hardlinking to the same file"),
         )
         self.widgetsVLayout.addWidget(self.ignoreHardlinkMatches)
-        self._setupAddCheckbox("debugModeBox", tr("Debug mode (restart required)"))
-        self.widgetsVLayout.addWidget(self.debugModeBox)
 
         self.cacheTypeRadio = RadioBox(self, items=["Sqlite", "Shelve"], spread=False)
         cache_form = QFormLayout()

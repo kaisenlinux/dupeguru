@@ -5,17 +5,16 @@
 # http://www.gnu.org/licenses/gpl-3.0.html
 
 from hscommon.testutil import TestApp as TestAppBase, CallLogger, eq_, with_app  # noqa
-from hscommon.path import Path
+from pathlib import Path
 from hscommon.util import get_file_ext, format_size
 from hscommon.gui.column import Column
 from hscommon.jobprogress.job import nulljob, JobCancelled
 
-from .. import engine
-from .. import prioritize
-from ..engine import getwords
-from ..app import DupeGuru as DupeGuruBase
-from ..gui.result_table import ResultTable as ResultTableBase
-from ..gui.prioritize_dialog import PrioritizeDialog
+from core import engine, prioritize
+from core.engine import getwords
+from core.app import DupeGuru as DupeGuruBase
+from core.gui.result_table import ResultTable as ResultTableBase
+from core.gui.prioritize_dialog import PrioritizeDialog
 
 
 class DupeGuruView:
@@ -86,9 +85,9 @@ class NamedObject:
             folder = "basepath"
         self._folder = Path(folder)
         self.size = size
-        self.md5partial = name
-        self.md5 = name
-        self.md5samples = name
+        self.digest_partial = name
+        self.digest = name
+        self.digest_samples = name
         if with_words:
             self.words = getwords(name)
         self.is_ref = False
@@ -111,11 +110,11 @@ class NamedObject:
 
     @property
     def path(self):
-        return self._folder[self.name]
+        return self._folder.joinpath(self.name)
 
     @property
     def folder_path(self):
-        return self.path.parent()
+        return self.path.parent
 
     @property
     def extension(self):

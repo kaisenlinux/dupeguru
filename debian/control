@@ -31,4 +31,5 @@ Depends: ${shlibs:Depends},
 	 python3-pytest,
 	 python3-flake8,
 	 python3-mutagen,
+	 python3-semantic-version,
 Description: Find duplicate files

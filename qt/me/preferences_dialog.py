@@ -18,7 +18,7 @@ from hscommon.trans import trget
 from core.app import AppMode
 from core.scanner import ScanType
 
-from ..preferences_dialog import PreferencesDialogBase
+from qt.preferences_dialog import PreferencesDialogBase
 
 tr = trget("ui")
 
@@ -68,8 +68,6 @@ class PreferencesDialog(PreferencesDialogBase):
             tr("Ignore duplicates hardlinking to the same file"),
         )
         self.widgetsVLayout.addWidget(self.ignoreHardlinkMatches)
-        self._setupAddCheckbox("debugModeBox", tr("Debug mode (restart required)"))
-        self.widgetsVLayout.addWidget(self.debugModeBox)
         self._setupBottomPart()
 
     def _load(self, prefs, setchecked, section):

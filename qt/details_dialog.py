@@ -9,8 +9,8 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QDockWidget, QWidget
 
-from qtlib.util import move_to_screen_center
-from .details_table import DetailsModel
+from qt.util import move_to_screen_center
+from qt.details_table import DetailsModel
 from hscommon.plat import ISLINUX
 
 

@@ -16,8 +16,8 @@ from PyQt5.QtWidgets import (
 )
 
 from hscommon.trans import trget
-from qtlib.util import horizontal_wrap
-from .ignore_list_table import IgnoreListTable
+from qt.util import horizontal_wrap
+from qt.ignore_list_table import IgnoreListTable
 
 tr = trget("ui")
 

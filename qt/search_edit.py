@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import QToolButton, QLineEdit, QStyle, QStyleOptionFrame
 
 from hscommon.trans import trget
 
-tr = trget("qtlib")
+tr = trget("ui")
 
 # IMPORTANT: For this widget to work propertly, you have to add "search_clear_13" from the
 # "images" folder in your resources.
@@ -38,7 +38,7 @@ class ClearableEdit(QLineEdit):
             self._clearButton = LineEditButton(self)
             frame_width = self.style().pixelMetric(QStyle.PM_DefaultFrameWidth)
             padding_right = self._clearButton.sizeHint().width() + frame_width + 1
-            stylesheet = "QLineEdit {{ padding-right:{0}px; }}".format(padding_right)
+            stylesheet = f"QLineEdit {{ padding-right:{padding_right}px; }}"
             self.setStyleSheet(stylesheet)
             self._updateClearButton()
 

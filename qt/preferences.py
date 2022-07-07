@@ -4,15 +4,153 @@
 # which should be included with this package. The terms are also available at
 # http://www.gnu.org/licenses/gpl-3.0.html
 
-from PyQt5.QtWidgets import QApplication
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QApplication, QDockWidget
+from PyQt5.QtCore import Qt, QRect, QObject, pyqtSignal
 from PyQt5.QtGui import QColor
 
 from hscommon import trans
 from hscommon.plat import ISLINUX
 from core.app import AppMode
 from core.scanner import ScanType
-from qtlib.preferences import Preferences as PreferencesBase
+from hscommon.util import tryint
+from qt.util import create_qsettings
+
+
+def get_langnames():
+    tr = trans.trget("ui")
+    return {
+        "cs": tr("Czech"),
+        "de": tr("German"),
+        "el": tr("Greek"),
+        "en": tr("English"),
+        "es": tr("Spanish"),
+        "fr": tr("French"),
+        "hy": tr("Armenian"),
+        "it": tr("Italian"),
+        "ja": tr("Japanese"),
+        "ko": tr("Korean"),
+        "ms": tr("Malay"),
+        "nl": tr("Dutch"),
+        "pl_PL": tr("Polish"),
+        "pt_BR": tr("Brazilian"),
+        "ru": tr("Russian"),
+        "tr": tr("Turkish"),
+        "uk": tr("Ukrainian"),
+        "vi": tr("Vietnamese"),
+        "zh_CN": tr("Chinese (Simplified)"),
+    }
+
+
+def _normalize_for_serialization(v):
+    # QSettings doesn't consider set/tuple as "native" typs for serialization, so if we don't
+    # change them into a list, we get a weird serialized QVariant value which isn't a very
+    # "portable" value.
+    if isinstance(v, (set, tuple)):
+        v = list(v)
+    if isinstance(v, list):
+        v = [_normalize_for_serialization(item) for item in v]
+    return v
+
+
+def _adjust_after_deserialization(v):
+    # In some cases, when reading from prefs, we end up with strings that are supposed to be
+    # bool or int. Convert these.
+    if isinstance(v, list):
+        return [_adjust_after_deserialization(sub) for sub in v]
+    if isinstance(v, str):
+        # might be bool or int, try them
+        if v == "true":
+            return True
+        elif v == "false":
+            return False
+        else:
+            return tryint(v, v)
+    return v
+
+
+class PreferencesBase(QObject):
+    prefsChanged = pyqtSignal()
+
+    def __init__(self):
+        QObject.__init__(self)
+        self.reset()
+        self._settings = create_qsettings()
+
+    def _load_values(self, settings):
+        # Implemented in subclasses
+        pass
+
+    def get_rect(self, name, default=None):
+        r = self.get_value(name, default)
+        if r is not None:
+            return QRect(*r)
+        else:
+            return None
+
+    def get_value(self, name, default=None):
+        if self._settings.contains(name):
+            result = _adjust_after_deserialization(self._settings.value(name))
+            if result is not None:
+                return result
+            else:
+                # If result is None, but still present in self._settings, it usually means a value
+                # like "@Invalid".
+                return default
+        else:
+            return default
+
+    def load(self):
+        self.reset()
+        self._load_values(self._settings)
+
+    def reset(self):
+        # Implemented in subclasses
+        pass
+
+    def _save_values(self, settings):
+        # Implemented in subclasses
+        pass
+
+    def save(self):
+        self._save_values(self._settings)
+        self._settings.sync()
+
+    def set_rect(self, name, r):
+        # About QRect conversion:
+        # I think Qt supports putting basic structures like QRect directly in QSettings, but I prefer not
+        # to rely on it and stay with generic structures.
+        if isinstance(r, QRect):
+            rect_as_list = [r.x(), r.y(), r.width(), r.height()]
+            self.set_value(name, rect_as_list)
+
+    def set_value(self, name, value):
+        self._settings.setValue(name, _normalize_for_serialization(value))
+
+    def saveGeometry(self, name, widget):
+        # We save geometry under a 7-sized int array: first item is a flag
+        # for whether the widget is maximized, second item is a flag for whether
+        # the widget is docked, third item is a Qt::DockWidgetArea enum value,
+        # and the other 4 are (x, y, w, h).
+        m = 1 if widget.isMaximized() else 0
+        d = 1 if isinstance(widget, QDockWidget) and not widget.isFloating() else 0
+        area = widget.parent.dockWidgetArea(widget) if d else 0
+        r = widget.geometry()
+        rect_as_list = [r.x(), r.y(), r.width(), r.height()]
+        self.set_value(name, [m, d, area] + rect_as_list)
+
+    def restoreGeometry(self, name, widget):
+        geometry = self.get_value(name)
+        if geometry and len(geometry) == 7:
+            m, d, area, x, y, w, h = geometry
+            if m:
+                widget.setWindowState(Qt.WindowMaximized)
+            else:
+                r = QRect(x, y, w, h)
+                widget.setGeometry(r)
+                if isinstance(widget, QDockWidget):
+                    # Inform of the previous dock state and the area used
+                    return bool(d), area
+        return False, 0
 
 
 class Preferences(PreferencesBase):
@@ -24,6 +162,7 @@ class Preferences(PreferencesBase):
         self.use_regexp = get("UseRegexp", self.use_regexp)
         self.remove_empty_folders = get("RemoveEmptyFolders", self.remove_empty_folders)
         self.debug_mode = get("DebugMode", self.debug_mode)
+        self.profile_scan = get("ProfileScan", self.profile_scan)
         self.destination_type = get("DestinationType", self.destination_type)
         self.custom_command = get("CustomCommand", self.custom_command)
         self.language = get("Language", self.language)
@@ -93,6 +232,7 @@ class Preferences(PreferencesBase):
         self.ignore_hardlink_matches = False
         self.remove_empty_folders = False
         self.debug_mode = False
+        self.profile_scan = False
         self.destination_type = 1
         self.custom_command = ""
         self.language = trans.installed_lang if trans.installed_lang else ""
@@ -144,6 +284,7 @@ class Preferences(PreferencesBase):
         set_("UseRegexp", self.use_regexp)
         set_("RemoveEmptyFolders", self.remove_empty_folders)
         set_("DebugMode", self.debug_mode)
+        set_("ProfileScan", self.profile_scan)
         set_("DestinationType", self.destination_type)
         set_("CustomCommand", self.custom_command)
         set_("Language", self.language)

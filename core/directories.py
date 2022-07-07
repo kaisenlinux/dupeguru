@@ -7,13 +7,13 @@
 import os
 from xml.etree import ElementTree as ET
 import logging
+from pathlib import Path
 
 from hscommon.jobprogress import job
-from hscommon.path import Path
 from hscommon.util import FileOrPath
 from hscommon.trans import tr
 
-from . import fs
+from core import fs
 
 __all__ = [
     "Directories",
@@ -63,7 +63,7 @@ class Directories:
 
     def __contains__(self, path):
         for p in self._dirs:
-            if path in p:
+            if path == p or p in path.parents:
                 return True
         return False
 
@@ -90,58 +90,57 @@ class Directories:
             return DirectoryState.EXCLUDED
 
     def _get_files(self, from_path, fileclasses, j):
-        for root, dirs, files in os.walk(str(from_path)):
-            j.check_if_cancelled()
-            root_path = Path(root)
-            state = self.get_state(root_path)
-            if state == DirectoryState.EXCLUDED and not any(p[: len(root_path)] == root_path for p in self.states):
-                # Recursively get files from folders with lots of subfolder is expensive. However, there
-                # might be a subfolder in this path that is not excluded. What we want to do is to skim
-                # through self.states and see if we must continue, or we can stop right here to save time
-                del dirs[:]
-            try:
-                if state != DirectoryState.EXCLUDED:
-                    # Old logic
-                    if self._exclude_list is None or not self._exclude_list.mark_count:
-                        found_files = [fs.get_file(root_path + f, fileclasses=fileclasses) for f in files]
-                    else:
-                        found_files = []
-                        # print(f"len of files: {len(files)} {files}")
-                        for f in files:
-                            if not self._exclude_list.is_excluded(root, f):
-                                found_files.append(fs.get_file(root_path + f, fileclasses=fileclasses))
-                    found_files = [f for f in found_files if f is not None]
-                    # In some cases, directories can be considered as files by dupeGuru, which is
-                    # why we have this line below. In fact, there only one case: Bundle files under
-                    # OS X... In other situations, this forloop will do nothing.
-                    for d in dirs[:]:
-                        f = fs.get_file(root_path + d, fileclasses=fileclasses)
-                        if f is not None:
-                            found_files.append(f)
-                            dirs.remove(d)
-                    logging.debug(
-                        "Collected %d files in folder %s",
-                        len(found_files),
-                        str(root_path),
-                    )
-                    for file in found_files:
-                        file.is_ref = state == DirectoryState.REFERENCE
-                        yield file
-            except (EnvironmentError, fs.InvalidPath):
-                pass
+        try:
+            with os.scandir(from_path) as iter:
+                root_path = Path(from_path)
+                state = self.get_state(root_path)
+                # if we have no un-excluded dirs under this directory skip going deeper
+                skip_dirs = state == DirectoryState.EXCLUDED and not any(
+                    p.parts[: len(root_path.parts)] == root_path.parts for p in self.states
+                )
+                count = 0
+                for item in iter:
+                    j.check_if_cancelled()
+                    try:
+                        if item.is_dir():
+                            if skip_dirs:
+                                continue
+                            yield from self._get_files(item.path, fileclasses, j)
+                            continue
+                        elif state == DirectoryState.EXCLUDED:
+                            continue
+                        # File excluding or not
+                        if (
+                            self._exclude_list is None
+                            or not self._exclude_list.mark_count
+                            or not self._exclude_list.is_excluded(str(from_path), item.name)
+                        ):
+                            file = fs.get_file(item, fileclasses=fileclasses)
+                            if file:
+                                file.is_ref = state == DirectoryState.REFERENCE
+                                count += 1
+                                yield file
+                    except (OSError, fs.InvalidPath):
+                        pass
+                logging.debug(
+                    "Collected %d files in folder %s",
+                    count,
+                    str(root_path),
+                )
+        except OSError:
+            pass
 
     def _get_folders(self, from_folder, j):
         j.check_if_cancelled()
         try:
             for subfolder in from_folder.subfolders:
-                for folder in self._get_folders(subfolder, j):
-                    yield folder
+                yield from self._get_folders(subfolder, j)
             state = self.get_state(from_folder.path)
             if state != DirectoryState.EXCLUDED:
                 from_folder.is_ref = state == DirectoryState.REFERENCE
                 logging.debug("Yielding Folder %r state: %d", from_folder, state)
                 yield from_folder
-        except (EnvironmentError, fs.InvalidPath):
+        except (OSError, fs.InvalidPath):
             pass
 
     # ---Public
@@ -159,7 +158,7 @@ class Directories:
             raise AlreadyThereError()
         if not path.exists():
             raise InvalidPathError()
-        self._dirs = [p for p in self._dirs if p not in path]
+        self._dirs = [p for p in self._dirs if path not in p.parents]
         self._dirs.append(path)
 
     @staticmethod
@@ -170,10 +169,10 @@ class Directories:
         :rtype: list of Path
         """
         try:
-            subpaths = [p for p in path.listdir() if p.isdir()]
+            subpaths = [p for p in path.glob("*") if p.is_dir()]
             subpaths.sort(key=lambda x: x.name.lower())
             return subpaths
-        except EnvironmentError:
+        except OSError:
             return []
 
     def get_files(self, fileclasses=None, j=job.nulljob):
@@ -220,14 +219,11 @@ class Directories:
         if state != DirectoryState.NORMAL:
             self.states[path] = state
             return state
-
-        prevlen = 0
-        # we loop through the states to find the longest matching prefix
-        # if the parent has a state in cache, return that state
-        for p, s in self.states.items():
-            if p.is_parent_of(path) and len(p) > prevlen:
-                prevlen = len(p)
-                state = s
+        # find the longest parent path that is in states and return that state if found
+        # NOTE: path.parents is ordered longest to shortest
+        for parent_path in path.parents:
+            if parent_path in self.states:
+                return self.states[parent_path]
         return state
 
     def has_any_file(self):
@@ -296,6 +292,6 @@ class Directories:
         if self.get_state(path) == state:
             return
         for iter_path in list(self.states.keys()):
-            if path.is_parent_of(iter_path):
+            if path in iter_path.parents:
                 del self.states[iter_path]
         self.states[path] = state

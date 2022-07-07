@@ -15,7 +15,7 @@ from hscommon.trans import tr
 from hscommon.jobprogress import job
 
 from core.engine import Match
-from .block import avgdiff, DifferentBlockCountError, NoBlocksError
+from core.pe.block import avgdiff, DifferentBlockCountError, NoBlocksError
 
 # OPTIMIZATION NOTES:
 # The bottleneck of the matching phase is CPU, which is why we use multiprocessing. However, another
@@ -51,11 +51,11 @@ except Exception:
 
 def get_cache(cache_path, readonly=False):
     if cache_path.endswith("shelve"):
-        from .cache_shelve import ShelveCache
+        from core.pe.cache_shelve import ShelveCache
 
         return ShelveCache(cache_path, readonly=readonly)
     else:
-        from .cache_sqlite import SqliteCache
+        from core.pe.cache_sqlite import SqliteCache
 
         return SqliteCache(cache_path, readonly=readonly)
 
@@ -87,7 +87,7 @@ def prepare_pictures(pictures, cache_path, with_dimensions, j=job.nulljob):
                     blocks = picture.get_blocks(BLOCK_COUNT_PER_SIDE)
                     cache[picture.unicode_path] = blocks
                 prepared.append(picture)
-            except (IOError, ValueError) as e:
+            except (OSError, ValueError) as e:
                 logging.warning(str(e))
             except MemoryError:
                 logging.warning(
@@ -238,7 +238,7 @@ def getmatches(pictures, cache_path, threshold, match_scaled=False, j=job.nulljo
     for ref_id, other_id, percentage in myiter:
         ref = id2picture[ref_id]
         other = id2picture[other_id]
-        if percentage == 100 and ref.md5 != other.md5:
+        if percentage == 100 and ref.digest != other.digest:
             percentage = 99
         if percentage >= threshold:
             ref.dimensions  # pre-read dimensions for display in results

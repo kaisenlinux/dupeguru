@@ -10,7 +10,7 @@ from PyQt5.QtGui import QImage, QImageReader, QTransform
 
 from core.pe.photo import Photo as PhotoBase
 
-from .block import getblocks
+from qt.pe.block import getblocks
 
 
 class File(PhotoBase):
@@ -22,7 +22,7 @@ class File(PhotoBase):
                 return (size.width(), size.height())
             else:
                 return (0, 0)
-        except EnvironmentError:
+        except OSError:
             logging.warning("Could not read image '%s'", str(self.path))
             return (0, 0)
 

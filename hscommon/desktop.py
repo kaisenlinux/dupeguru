@@ -6,31 +6,33 @@
 # which should be included with this package. The terms are also available at
 # http://www.gnu.org/licenses/gpl-3.0.html
 
+from enum import Enum
+from os import PathLike
 import os.path as op
 import logging
 
 
-class SpecialFolder:
+class SpecialFolder(Enum):
     APPDATA = 1
     CACHE = 2
 
 
-def open_url(url):
+def open_url(url: str) -> None:
     """Open ``url`` with the default browser."""
     _open_url(url)
 
 
-def open_path(path):
+def open_path(path: PathLike) -> None:
     """Open ``path`` with its associated application."""
     _open_path(str(path))
 
 
-def reveal_path(path):
+def reveal_path(path: PathLike) -> None:
     """Open the folder containing ``path`` with the default file browser."""
     _reveal_path(str(path))
 
 
-def special_folder_path(special_folder, appname=None, portable=False):
+def special_folder_path(special_folder: SpecialFolder, portable: bool = False) -> str:
     """Returns the path of ``special_folder``.
 
     ``special_folder`` is a SpecialFolder.* const. The result is the special folder for the current
@@ -38,77 +40,58 @@ def special_folder_path(special_folder, appname=None, portable=False):
 
     You can override the application name with ``appname``. This argument is ingored under Qt.
     """
-    return _special_folder_path(special_folder, appname, portable=portable)
+    return _special_folder_path(special_folder, portable=portable)
 
 
 try:
-    # Normally, we would simply do "from cocoa import proxy", but due to a bug in pytest (currently
-    # at v2.4.2), our test suite is broken when we do that. This below is a workaround until that
-    # bug is fixed.
-    import cocoa
+    from PyQt5.QtCore import QUrl, QStandardPaths
+    from PyQt5.QtGui import QDesktopServices
+    from qt.util import get_appdata
+    from core.util import executable_folder
+    from hscommon.plat import ISWINDOWS, ISOSX
+    import subprocess
 
-    if not hasattr(cocoa, "proxy"):
-        raise ImportError()
-    proxy = cocoa.proxy
-    _open_url = proxy.openURL_
-    _open_path = proxy.openPath_
-    _reveal_path = proxy.revealPath_
+    def _open_url(url: str) -> None:
+        QDesktopServices.openUrl(QUrl(url))
 
-    def _special_folder_path(special_folder, appname=None, portable=False):
-        if special_folder == SpecialFolder.CACHE:
-            base = proxy.getCachePath()
+    def _open_path(path: str) -> None:
+        url = QUrl.fromLocalFile(str(path))
+        QDesktopServices.openUrl(url)
+
+    def _reveal_path(path: str) -> None:
+        if ISWINDOWS:
+            subprocess.run(["explorer", "/select,", op.abspath(path)])
+        elif ISOSX:
+            subprocess.run(["open", "-R", op.abspath(path)])
         else:
-            base = proxy.getAppdataPath()
-        if not appname:
-            appname = proxy.bundleInfo_("CFBundleName")
-        return op.join(base, appname)
+            _open_path(op.dirname(str(path)))
+
+    def _special_folder_path(special_folder: SpecialFolder, portable: bool = False) -> str:
+        if special_folder == SpecialFolder.CACHE:
+            if ISWINDOWS and portable:
+                folder = op.join(executable_folder(), "cache")
+            else:
+                folder = QStandardPaths.standardLocations(QStandardPaths.CacheLocation)[0]
+        else:
+            folder = get_appdata(portable)
+        return folder
 
 except ImportError:
-    try:
-        from PyQt5.QtCore import QUrl, QStandardPaths
-        from PyQt5.QtGui import QDesktopServices
-        from qtlib.util import get_appdata
-        from core.util import executable_folder
-        from hscommon.plat import ISWINDOWS, ISOSX
-        import subprocess
+    # We're either running tests, and these functions don't matter much or we're in a really
+    # weird situation. Let's just have dummy fallbacks.
+    logging.warning("Can't setup desktop functions!")
 
-        def _open_url(url):
-            QDesktopServices.openUrl(QUrl(url))
+    def _open_url(url: str) -> None:
+        # Dummy for tests
+        pass
 
-        def _open_path(path):
-            url = QUrl.fromLocalFile(str(path))
-            QDesktopServices.openUrl(url)
+    def _open_path(path: str) -> None:
+        # Dummy for tests
+        pass
 
-        def _reveal_path(path):
-            if ISWINDOWS:
-                subprocess.run(["explorer", "/select,", op.abspath(path)])
-            elif ISOSX:
-                subprocess.run(["open", "-R", op.abspath(path)])
-            else:
-                _open_path(op.dirname(str(path)))
+    def _reveal_path(path: str) -> None:
+        # Dummy for tests
+        pass
 
-        def _special_folder_path(special_folder, appname=None, portable=False):
-            if special_folder == SpecialFolder.CACHE:
-                if ISWINDOWS and portable:
-                    folder = op.join(executable_folder(), "cache")
-                else:
-                    folder = QStandardPaths.standardLocations(QStandardPaths.CacheLocation)[0]
-            else:
-                folder = get_appdata(portable)
-            return folder
-
-    except ImportError:
-        # We're either running tests, and these functions don't matter much or we're in a really
-        # weird situation. Let's just have dummy fallbacks.
-        logging.warning("Can't setup desktop functions!")
-
-        def _open_path(path):
-            # Dummy for tests
-            pass
-
-        def _reveal_path(path):
-            # Dummy for tests
-            pass
-
-        def _special_folder_path(special_folder, appname=None, portable=False):
-            return "/tmp"
+    def _special_folder_path(special_folder: SpecialFolder, portable: bool = False) -> str:
+        return "/tmp"

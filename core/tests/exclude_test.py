@@ -10,8 +10,8 @@ from xml.etree import ElementTree as ET
 from hscommon.testutil import eq_
 from hscommon.plat import ISWINDOWS
 
-from .base import DupeGuru
-from ..exclude import ExcludeList, ExcludeDict, default_regexes, AlreadyThereException
+from core.tests.base import DupeGuru
+from core.exclude import ExcludeList, ExcludeDict, default_regexes, AlreadyThereException
 
 from re import error
 
@@ -289,8 +289,8 @@ class TestCaseListEmptyUnion(TestCaseListEmpty):
         compiled = [x for x in self.exclude_list.compiled]
         assert regex not in compiled
         # Need to escape both to get the same strings after compilation
-        compiled_escaped = set([x.encode("unicode-escape").decode() for x in compiled[0].pattern.split("|")])
-        default_escaped = set([x.encode("unicode-escape").decode() for x in default_regexes])
+        compiled_escaped = {x.encode("unicode-escape").decode() for x in compiled[0].pattern.split("|")}
+        default_escaped = {x.encode("unicode-escape").decode() for x in default_regexes}
         assert compiled_escaped == default_escaped
         eq_(len(default_regexes), len(compiled[0].pattern.split("|")))
 
@@ -366,8 +366,8 @@ class TestCaseDictEmptyUnion(TestCaseDictEmpty):
         compiled = [x for x in self.exclude_list.compiled]
         assert regex not in compiled
         # Need to escape both to get the same strings after compilation
-        compiled_escaped = set([x.encode("unicode-escape").decode() for x in compiled[0].pattern.split("|")])
-        default_escaped = set([x.encode("unicode-escape").decode() for x in default_regexes])
+        compiled_escaped = {x.encode("unicode-escape").decode() for x in compiled[0].pattern.split("|")}
+        default_escaped = {x.encode("unicode-escape").decode() for x in default_regexes}
         assert compiled_escaped == default_escaped
         eq_(len(default_regexes), len(compiled[0].pattern.split("|")))
 

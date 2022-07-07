@@ -61,7 +61,7 @@ def parse_args():
 
 
 def build_one_help(language):
-    print("Generating Help in {}".format(language))
+    print(f"Generating Help in {language}")
     current_path = Path(".").absolute()
     changelog_path = current_path.joinpath("help", "changelog")
     tixurl = "https://github.com/arsenetar/dupeguru/issues/{}"
@@ -88,14 +88,8 @@ def build_help():
         p.map(build_one_help, languages)
 
 
-def build_qt_localizations():
-    loc.compile_all_po(Path("qtlib", "locale"))
-    loc.merge_locale_dir(Path("qtlib", "locale"), "locale")
-
-
 def build_localizations():
     loc.compile_all_po("locale")
-    build_qt_localizations()
     locale_dest = Path("build", "locale")
     if locale_dest.exists():
         shutil.rmtree(locale_dest)
@@ -109,25 +103,16 @@ def build_updatepot():
     print("Building columns.pot")
     loc.generate_pot(["core"], Path("locale", "columns.pot"), ["coltr"])
     print("Building ui.pot")
-    # When we're not under OS X, we don't want to overwrite ui.pot because it contains Cocoa locs
-    # We want to merge the generated pot with the old pot in the most preserving way possible.
-    ui_packages = ["qt", Path("cocoa", "inter")]
-    loc.generate_pot(ui_packages, Path("locale", "ui.pot"), ["tr"], merge=True)
-    print("Building qtlib.pot")
-    loc.generate_pot(["qtlib"], Path("qtlib", "locale", "qtlib.pot"), ["tr"])
+    loc.generate_pot(["qt"], Path("locale", "ui.pot"), ["tr"], merge=True)
 
 
 def build_mergepot():
     print("Updating .po files using .pot files")
     loc.merge_pots_into_pos("locale")
-    loc.merge_pots_into_pos(Path("qtlib", "locale"))
-    # loc.merge_pots_into_pos(Path("cocoalib", "locale"))
 
 
 def build_normpo():
     loc.normalize_all_pos("locale")
-    loc.normalize_all_pos(Path("qtlib", "locale"))
-    # loc.normalize_all_pos(Path("cocoalib", "locale"))
 
 
 def build_pe_modules():
@@ -144,7 +129,7 @@ def build_normal():
     print("Building localizations")
     build_localizations()
     print("Building Qt stuff")
-    print_and_do("pyrcc5 {0} > {1}".format(Path("qt", "dg.qrc"), Path("qt", "dg_rc.py")))
+    print_and_do("pyrcc5 {} > {}".format(Path("qt", "dg.qrc"), Path("qt", "dg_rc.py")))
     fix_qt_resource_file(Path("qt", "dg_rc.py"))
     build_help()
 

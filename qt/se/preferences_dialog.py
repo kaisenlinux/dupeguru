@@ -20,7 +20,7 @@ from hscommon.trans import trget
 from core.app import AppMode
 from core.scanner import ScanType
 
-from ..preferences_dialog import PreferencesDialogBase
+from qt.preferences_dialog import PreferencesDialogBase
 
 tr = trget("ui")
 
@@ -103,8 +103,6 @@ class PreferencesDialog(PreferencesDialogBase):
             self.widget,
         )
         self.verticalLayout_4.addWidget(self.ignoreHardlinkMatches)
-        self._setupAddCheckbox("debugModeBox", tr("Debug mode (restart required)"), self.widget)
-        self.verticalLayout_4.addWidget(self.debugModeBox)
         self.widgetsVLayout.addWidget(self.widget)
         self._setupBottomPart()
 

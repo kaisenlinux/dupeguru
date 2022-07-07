@@ -10,23 +10,19 @@ from io import StringIO
 
 from pytest import raises
 
-from ..testutil import eq_
-from ..path import Path
-from ..util import (
+from hscommon.testutil import eq_
+from pathlib import Path
+from hscommon.util import (
     nonone,
     tryint,
-    minmax,
     first,
     flatten,
     dedupe,
-    stripfalse,
     extract,
     allsame,
-    trailiter,
     format_time,
     format_time_decimal,
     format_size,
-    remove_invalid_xml,
     multi_replace,
     delete_if_empty,
     open_if_filename,
@@ -51,12 +47,6 @@ def test_tryint():
     eq_(42, tryint(None, 42))
 
 
-def test_minmax():
-    eq_(minmax(2, 1, 3), 2)
-    eq_(minmax(0, 1, 3), 1)
-    eq_(minmax(4, 1, 3), 3)
-
-
 # --- Sequence
 
 
@@ -75,10 +65,6 @@ def test_dedupe():
     eq_(dedupe(reflist), [0, 7, 1, 2, 3, 4, 5, 6])
 
 
-def test_stripfalse():
-    eq_([1, 2, 3], stripfalse([None, 0, 1, 2, 3, None]))
-
-
 def test_extract():
     wheat, shaft = extract(lambda n: n % 2 == 0, list(range(10)))
     eq_(wheat, [0, 2, 4, 6, 8])
@@ -91,14 +77,6 @@ def test_allsame():
     assert not allsame([43, 42, 42])
     # Works on non-sequence as well
     assert allsame(iter([42, 42, 42]))
-
-
-def test_trailiter():
-    eq_(list(trailiter([])), [])
-    eq_(list(trailiter(["foo"])), [(None, "foo")])
-    eq_(list(trailiter(["foo", "bar"])), [(None, "foo"), ("foo", "bar")])
-    eq_(list(trailiter(["foo", "bar"], skipfirst=True)), [("foo", "bar")])
-    eq_(list(trailiter([], skipfirst=True)), [])  # no crash
 
 
 def test_iterconsume():
@@ -213,14 +191,6 @@ def test_format_size():
     eq_(format_size(999999999999999999999999), "848 ZB")
 
 
-def test_remove_invalid_xml():
-    eq_(remove_invalid_xml("foo\0bar\x0bbaz"), "foo bar baz")
-    # surrogate blocks have to be replaced, but not the rest
-    eq_(remove_invalid_xml("foo\ud800bar\udfffbaz\ue000"), "foo bar baz\ue000")
-    # replace with something else
-    eq_(remove_invalid_xml("foo\0baz", replace_with="bar"), "foobarbaz")
-
-
 def test_multi_replace():
     eq_("136", multi_replace("123456", ("2", "45")))
     eq_("1 3 6", multi_replace("123456", ("2", "45"), " "))
@@ -245,30 +215,30 @@ class TestCaseDeleteIfEmpty:
 
     def test_not_empty(self, tmpdir):
         testpath = Path(str(tmpdir))
-        testpath["foo"].mkdir()
+        testpath.joinpath("foo").mkdir()
         assert not delete_if_empty(testpath)
         assert testpath.exists()
 
     def test_with_files_to_delete(self, tmpdir):
         testpath = Path(str(tmpdir))
-        testpath["foo"].open("w")
-        testpath["bar"].open("w")
+        testpath.joinpath("foo").touch()
+        testpath.joinpath("bar").touch()
         assert delete_if_empty(testpath, ["foo", "bar"])
         assert not testpath.exists()
 
     def test_directory_in_files_to_delete(self, tmpdir):
         testpath = Path(str(tmpdir))
-        testpath["foo"].mkdir()
+        testpath.joinpath("foo").mkdir()
         assert not delete_if_empty(testpath, ["foo"])
         assert testpath.exists()
 
     def test_delete_files_to_delete_only_if_dir_is_empty(self, tmpdir):
         testpath = Path(str(tmpdir))
-        testpath["foo"].open("w")
-        testpath["bar"].open("w")
+        testpath.joinpath("foo").touch()
+        testpath.joinpath("bar").touch()
         assert not delete_if_empty(testpath, ["foo"])
         assert testpath.exists()
-        assert testpath["foo"].exists()
+        assert testpath.joinpath("foo").exists()
 
     def test_doesnt_exist(self):
         # When the 'path' doesn't exist, just do nothing.
@@ -276,8 +246,8 @@ class TestCaseDeleteIfEmpty:
 
     def test_is_file(self, tmpdir):
         # When 'path' is a file, do nothing.
-        p = Path(str(tmpdir)) + "filename"
-        p.open("w").close()
+        p = Path(str(tmpdir)).joinpath("filename")
+        p.touch()
         delete_if_empty(p)  # no crash
 
     def test_ioerror(self, tmpdir, monkeypatch):

@@ -24,16 +24,16 @@ from PyQt5.QtWidgets import (
 )
 
 from hscommon.trans import trget
-from qtlib.util import move_to_screen_center, horizontal_wrap, create_actions
-from qtlib.search_edit import SearchEdit
+from qt.util import move_to_screen_center, horizontal_wrap, create_actions
+from qt.search_edit import SearchEdit
 
 from core.app import AppMode
-from .results_model import ResultsView
-from .stats_label import StatsLabel
-from .prioritize_dialog import PrioritizeDialog
-from .se.results_model import ResultsModel as ResultsModelStandard
-from .me.results_model import ResultsModel as ResultsModelMusic
-from .pe.results_model import ResultsModel as ResultsModelPicture
+from qt.results_model import ResultsView
+from qt.stats_label import StatsLabel
+from qt.prioritize_dialog import PrioritizeDialog
+from qt.se.results_model import ResultsModel as ResultsModelStandard
+from qt.me.results_model import ResultsModel as ResultsModelMusic
+from qt.pe.results_model import ResultsModel as ResultsModelPicture
 
 tr = trget("ui")
 
@@ -470,7 +470,7 @@ class ResultWindow(QMainWindow):
         destination, chosen_filter = QFileDialog.getSaveFileName(self, title, "", files)
         if destination:
             if not destination.endswith(".dupeguru"):
-                destination = "{}.dupeguru".format(destination)
+                destination = f"{destination}.dupeguru"
             self.app.model.save_as(destination)
             self.app.recentResults.insertItem(destination)
 

@@ -8,26 +8,10 @@
 
 import pytest
 
-import threading
-import py.path
-
 
 def eq_(a, b, msg=None):
     __tracebackhide__ = True
-    assert a == b, msg or "%r != %r" % (a, b)
-
-
-def eq_sorted(a, b, msg=None):
-    """If both a and b are iterable sort them and compare using eq_, otherwise just pass them through to eq_ anyway."""
-    try:
-        eq_(sorted(a), sorted(b), msg)
-    except TypeError:
-        eq_(a, b, msg)
-
-
-def assert_almost_equal(a, b, places=7):
-    __tracebackhide__ = True
-    assert round(a, ndigits=places) == round(b, ndigits=places)
+    assert a == b, msg or "{!r} != {!r}".format(a, b)
 
 
 def callcounter():
@@ -36,23 +20,6 @@ def callcounter():
 
     f.callcount = 0
     return f
-
-
-class TestData:
-    def __init__(self, datadirpath):
-        self.datadirpath = py.path.local(datadirpath)
-
-    def filepath(self, relative_path, *args):
-        """Returns the path of a file in testdata.
-
-        'relative_path' can be anything that can be added to a Path
-        if args is not empty, it will be joined to relative_path
-        """
-        resultpath = self.datadirpath.join(relative_path)
-        if args:
-            resultpath = resultpath.join(*args)
-        assert resultpath.check()
-        return str(resultpath)
 
 
 class CallLogger:
@@ -97,17 +64,17 @@ class CallLogger:
         __tracebackhide__ = True
         if expected is not None:
             not_called = set(expected) - set(self.calls)
-            assert not not_called, "These calls haven't been made: {0}".format(not_called)
+            assert not not_called, f"These calls haven't been made: {not_called}"
             if verify_order:
                 max_index = 0
                 for call in expected:
                     index = self.calls.index(call)
                     if index < max_index:
-                        raise AssertionError("The call {0} hasn't been made in the correct order".format(call))
+                        raise AssertionError(f"The call {call} hasn't been made in the correct order")
                     max_index = index
         if not_expected is not None:
             called = set(not_expected) & set(self.calls)
-            assert not called, "These calls shouldn't have been made: {0}".format(called)
+            assert not called, f"These calls shouldn't have been made: {called}"
         self.clear_calls()
 
 
@@ -133,7 +100,7 @@ class TestApp:
             parent = self.default_parent
         if holder is None:
             holder = self
-        setattr(holder, "{0}_gui".format(name), view)
+        setattr(holder, f"{name}_gui", view)
         gui = class_(parent)
         gui.view = view
         setattr(holder, name, gui)
@@ -166,20 +133,6 @@ def app(request):
         args = []
     app = setupfunc(*args)
     return app
-
-
-def jointhreads():
-    """Join all threads to the main thread"""
-    for thread in threading.enumerate():
-        if hasattr(thread, "BUGGY"):
-            continue
-        if thread.getName() != "MainThread" and thread.isAlive():
-            if hasattr(thread, "close"):
-                thread.close()
-            thread.join(1)
-            if thread.isAlive():
-                print("Thread problem. Some thread doesn't want to stop.")
-                thread.BUGGY = True
 
 
 def _unify_args(func, args, kwargs, args_to_ignore=None):

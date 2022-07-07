@@ -10,9 +10,9 @@ from hscommon.jobprogress import job
 from hscommon.util import first
 from hscommon.testutil import eq_, log_calls
 
-from .base import NamedObject
-from .. import engine
-from ..engine import (
+from core.tests.base import NamedObject
+from core import engine
+from core.engine import (
     get_match,
     getwords,
     Group,
@@ -271,9 +271,9 @@ class TestCaseBuildWordDict:
 class TestCaseMergeSimilarWords:
     def test_some_similar_words(self):
         d = {
-            "foobar": set([1]),
-            "foobar1": set([2]),
-            "foobar2": set([3]),
+            "foobar": {1},
+            "foobar1": {2},
+            "foobar2": {3},
         }
         merge_similar_words(d)
         eq_(1, len(d))
@@ -283,8 +283,8 @@ class TestCaseMergeSimilarWords:
 class TestCaseReduceCommonWords:
     def test_typical(self):
         d = {
-            "foo": set([NamedObject("foo bar", True) for _ in range(50)]),
-            "bar": set([NamedObject("foo bar", True) for _ in range(49)]),
+            "foo": {NamedObject("foo bar", True) for _ in range(50)},
+            "bar": {NamedObject("foo bar", True) for _ in range(49)},
         }
         reduce_common_words(d, 50)
         assert "foo" not in d
@@ -293,7 +293,7 @@ class TestCaseReduceCommonWords:
     def test_dont_remove_objects_with_only_common_words(self):
         d = {
             "common": set([NamedObject("common uncommon", True) for _ in range(50)] + [NamedObject("common", True)]),
-            "uncommon": set([NamedObject("common uncommon", True)]),
+            "uncommon": {NamedObject("common uncommon", True)},
         }
         reduce_common_words(d, 50)
         eq_(1, len(d["common"]))
@@ -302,7 +302,7 @@ class TestCaseReduceCommonWords:
     def test_values_still_are_set_instances(self):
         d = {
             "common": set([NamedObject("common uncommon", True) for _ in range(50)] + [NamedObject("common", True)]),
-            "uncommon": set([NamedObject("common uncommon", True)]),
+            "uncommon": {NamedObject("common uncommon", True)},
         }
         reduce_common_words(d, 50)
         assert isinstance(d["common"], set)
@@ -312,9 +312,9 @@ class TestCaseReduceCommonWords:
         # If a word has been removed by the reduce, an object in a subsequent common word that
         # contains the word that has been removed would cause a KeyError.
         d = {
-            "foo": set([NamedObject("foo bar baz", True) for _ in range(50)]),
-            "bar": set([NamedObject("foo bar baz", True) for _ in range(50)]),
-            "baz": set([NamedObject("foo bar baz", True) for _ in range(49)]),
+            "foo": {NamedObject("foo bar baz", True) for _ in range(50)},
+            "bar": {NamedObject("foo bar baz", True) for _ in range(50)},
+            "baz": {NamedObject("foo bar baz", True) for _ in range(49)},
         }
         try:
             reduce_common_words(d, 50)
@@ -328,7 +328,7 @@ class TestCaseReduceCommonWords:
             o.words = [["foo", "bar"], ["baz"]]
             return o
 
-        d = {"foo": set([create_it() for _ in range(50)])}
+        d = {"foo": {create_it() for _ in range(50)}}
         try:
             reduce_common_words(d, 50)
         except TypeError:
@@ -343,7 +343,7 @@ class TestCaseReduceCommonWords:
         d = {
             "foo": set([NamedObject("foo bar baz", True) for _ in range(49)] + [only_common]),
             "bar": set([NamedObject("foo bar baz", True) for _ in range(49)] + [only_common]),
-            "baz": set([NamedObject("foo bar baz", True) for _ in range(49)]),
+            "baz": {NamedObject("foo bar baz", True) for _ in range(49)},
         }
         reduce_common_words(d, 50)
         eq_(1, len(d["foo"]))
@@ -530,7 +530,7 @@ class TestCaseGetMatches:
 
 
 class TestCaseGetMatchesByContents:
-    def test_big_file_partial_hashes(self):
+    def test_big_file_partial_hashing(self):
         smallsize = 1
         bigsize = 100 * 1024 * 1024  # 100MB
         f = [
@@ -539,17 +539,17 @@ class TestCaseGetMatchesByContents:
             no("smallfoo", size=smallsize),
             no("smallbar", size=smallsize),
         ]
-        f[0].md5 = f[0].md5partial = f[0].md5samples = "foobar"
-        f[1].md5 = f[1].md5partial = f[1].md5samples = "foobar"
-        f[2].md5 = f[2].md5partial = "bleh"
-        f[3].md5 = f[3].md5partial = "bleh"
+        f[0].digest = f[0].digest_partial = f[0].digest_samples = "foobar"
+        f[1].digest = f[1].digest_partial = f[1].digest_samples = "foobar"
+        f[2].digest = f[2].digest_partial = "bleh"
+        f[3].digest = f[3].digest_partial = "bleh"
         r = getmatches_by_contents(f, bigsize=bigsize)
         eq_(len(r), 2)
-        # User disabled optimization for big files, compute hashes as usual
+        # User disabled optimization for big files, compute digests as usual
         r = getmatches_by_contents(f, bigsize=0)
         eq_(len(r), 2)
-        # Other file is now slightly different, md5partial is still the same
-        f[1].md5 = f[1].md5samples = "foobardiff"
+        # Other file is now slightly different, digest_partial is still the same
+        f[1].digest = f[1].digest_samples = "foobardiff"
         r = getmatches_by_contents(f, bigsize=bigsize)
         # Successfully filter it out
         eq_(len(r), 1)
@@ -884,7 +884,7 @@ class TestCaseGetGroups:
         # If, with a (A, B, C, D) set, all match with A, but C and D don't match with B and that the
         # (A, B) match is the highest (thus resulting in an (A, B) group), still match C and D
         # in a separate group instead of discarding them.
-        A, B, C, D = [NamedObject() for _ in range(4)]
+        A, B, C, D = (NamedObject() for _ in range(4))
         m1 = Match(A, B, 90)  # This is the strongest "A" match
         m2 = Match(A, C, 80)  # Because C doesn't match with B, it won't be in the group
         m3 = Match(A, D, 80)  # Same thing for D
